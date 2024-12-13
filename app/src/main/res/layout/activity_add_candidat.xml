@@ -10,6 +10,17 @@
     android:paddingBottom="16dp"
     tools:context=".ui.add.AddCandidatActivity">
 
+    <!-- AppBarLayout for the Toolbar -->
+
+        <!-- Toolbar that stays at the top -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/primary_variant"
+            app:layout_scrollFlags="scroll|enterAlways"
+            android:title="My Activity Title"
+            android:elevation="4dp" />
 
 
     <!-- ScrollView with content -->
@@ -26,13 +37,7 @@
         android:paddingBottom="16dp"
         android:scrollbars="vertical">
 
-    <!-- Toolbar with up button and title -->
-<androidx.appcompat.widget.Toolbar
-    android:id="@+id/toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/primary_variant"
-    android:title="My Activity Title"/>
+
 
     <!-- ImageView with padding on all sides -->
     <ImageView
@@ -160,7 +165,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:inputType="text" />
+                android:inputType="number"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -189,7 +194,9 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/textInputLayoutEmail"
             android:hint="Email"
+            app:hintEnabled="true"
             app:boxStrokeWidth="1dp"
             app:boxStrokeColor="@color/primary"
             app:boxBackgroundMode="outline">
@@ -200,7 +207,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:inputType="text" />
+                android:inputType="textEmailAddress" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -268,7 +275,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:inputType="text" />
+                android:inputType="number" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -7,6 +7,9 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Patterns
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.ImageView
@@ -17,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
+import com.google.android.material.textfield.TextInputLayout
 import java.io.FileNotFoundException
 import java.util.Calendar
 import java.util.Date
@@ -34,6 +38,8 @@ class AddCandidatActivity : AppCompatActivity() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         val editText = findViewById<EditText>(R.id.editTextDateOfBirth)
         userProfilePicture = findViewById<ImageView>(R.id.userProfilePicture)
+        val editTextEmail = findViewById<EditText>(R.id.emailTextName)
+
 
         // Set the toolbar as the app's action bar
         setSupportActionBar(toolbar)
@@ -50,8 +56,38 @@ class AddCandidatActivity : AppCompatActivity() {
             intent.type = "image/*"
             startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE)
         }
+
+
+        // Call the function to add text watcher for email validation
+        validateEmailWhileTyping(editTextEmail)
     }
 
+    // Function to add a TextWatcher to EditText and validate email
+    private fun validateEmailWhileTyping(editTextEmail: EditText) {
+        val textInputLayout = findViewById<TextInputLayout>(R.id.textInputLayoutEmail)
+
+        editTextEmail.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun onTextChanged(charSequence: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(editable: Editable?) {
+                val email = editable.toString()
+                if (isValidEmail(email)) {
+                    // If email is valid, remove the error
+                    textInputLayout.error = null
+                } else {
+                    // If email is invalid, show an error below the EditText
+                    textInputLayout.error = "Format email invalide"
+                }
+            }
+        })
+    }
+
+    // Function to validate email using Android's built-in Patterns
+    private fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
