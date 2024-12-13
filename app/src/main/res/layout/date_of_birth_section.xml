@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp">
+
+    <LinearLayout
+        android:background="@color/secondary_variant"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:weightSum="1">
+
+        <!-- TextView with the cake icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="start|center_vertical"
+            android:layout_marginBottom="8dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selectionner une date"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- TextView with weight to fill available space -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Entrer une date"
+                    android:textSize="32dp"
+                    android:layout_weight="1" /> <!-- Takes up remaining space -->
+
+                <!-- ImageView -->
+                <ImageView
+                    android:id="@+id/calendaricon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/calendar"
+                    android:inputType="none"
+                    android:focusable="true"
+                    android:clickable="true"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- TextInputLayout with outline and floating label -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeColor="@color/primary"
+            app:boxBackgroundMode="outline">
+
+            <!-- EditText inside TextInputLayout -->
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/editTextDateOfBirth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="date"
+                android:hint="jj/mm/aaaa"
+                android:textSize="14sp"
+                android:importantForAccessibility="yes"
+                android:contentDescription="Date of birth input"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="16dp"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
