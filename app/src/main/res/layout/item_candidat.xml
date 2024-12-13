@@ -32,6 +32,7 @@
 
                 <!-- item_candidat.xml -->
                 <TextView
+                    android:textSize="24dp"
                     android:id="@+id/nameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -40,6 +41,7 @@
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
+                    android:textSize="24dp"
                     android:id="@+id/surnameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -50,6 +52,7 @@
             <TextView
                 android:id="@+id/noteTextView"
                 android:text="Note"
+                android:textSize="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 

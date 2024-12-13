@@ -27,8 +27,8 @@ class MainActivity : AppCompatActivity() {
         // Attach TabLayout with ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
-                0 -> "Tab 1"
-                1 -> "Tab 2"
+                0 -> "Tous"
+                1 -> "Favoris"
                 else -> null
             }
         }.attach()
