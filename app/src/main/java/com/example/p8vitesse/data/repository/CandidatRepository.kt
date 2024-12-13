@@ -1,5 +1,6 @@
 package com.example.p8vitesse.data.repository
 
+import android.util.Log
 import com.example.p8vitesse.data.dao.CandidatDtoDao
 import com.example.p8vitesse.domain.model.Candidat
 import kotlinx.coroutines.flow.map
@@ -9,8 +10,14 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
 
 
     suspend fun getAllCandidats(): List<Candidat> {
-        return candidatDao.getAllCandidats()
+
+        var allCandidat = candidatDao.getAllCandidats()
             .map { Candidat.fromDto(it) } // Convert every DTO to Candidat
+
+        return allCandidat
+
+        Log.e("AllViewModel", "All candidates: $allCandidat")
+
     }
 
 

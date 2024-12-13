@@ -9,7 +9,7 @@ import java.util.Date
 data class CandidatDto(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    var id: Long? = 0,
+    val id: Long? = null,
 
     @ColumnInfo(name = "name")
     var name: String,

@@ -2,14 +2,21 @@ package com.example.p8vitesse
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.p8vitesse.data.database.AppDatabase
 import com.example.p8vitesse.ui.home.ViewPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        AppDatabase.getDatabase(applicationContext, CoroutineScope(Dispatchers.IO))
 
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPager)

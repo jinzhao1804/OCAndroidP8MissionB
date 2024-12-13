@@ -1,5 +1,6 @@
 package com.example.p8vitesse.ui.home.all
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.p8vitesse.domain.model.Candidat
@@ -19,16 +20,17 @@ class AllViewModel @Inject constructor(private val getAllCandidatsUseCase: GetAl
     val candidats: StateFlow<List<Candidat>> = _candidats.asStateFlow()
 
     fun fetchCandidats() {
-        // Launch a coroutine within the viewModelScope to handle the async operation
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Fetch candidates using the use case
                 val candidatsList = getAllCandidatsUseCase.execute()
+                // Log to see if we are receiving the correct data
+                Log.e("AppDatabase", "Fetched candidates: $candidatsList")
                 // Update the state flow with the fetched candidates
                 _candidats.value = candidatsList
             } catch (e: Exception) {
-                // Handle any exceptions (e.g., log it or show an error state)
-                _candidats.value = emptyList() // or provide a default value or error state
+                Log.e("AppDatabase", "Error fetching candidates", e)
+                _candidats.value = emptyList() // Handle error
             }
         }
     }

@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.p8vitesse.data.dao.CandidatDtoDao
 import com.example.p8vitesse.data.database.AppDatabase
 import com.example.p8vitesse.data.repository.CandidatRepository
+import com.example.p8vitesse.domain.usecase.GetAllCandidatsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,6 +42,11 @@ class AppModule {
     @Singleton
     fun provideCandidatRepository(userDao: CandidatDtoDao): CandidatRepository {
         return CandidatRepository(userDao)
+    }
+
+    @Provides
+    fun provideGetAllCandidatsUseCase(candidatRepository: CandidatRepository): GetAllCandidatsUseCase {
+        return GetAllCandidatsUseCase(candidatRepository)
     }
 
 }

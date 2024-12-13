@@ -1,6 +1,5 @@
 package com.example.p8vitesse.data.database
 
-
 import android.content.Context
 import android.util.Log
 import androidx.room.Database
@@ -13,16 +12,11 @@ import com.example.p8vitesse.data.dao.CandidatDtoDao
 import com.example.p8vitesse.data.entity.CandidatDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.Locale
-import java.util.Locale.Category
 
 @Database(entities = [CandidatDto::class], version = 1, exportSchema = false)
 @TypeConverters(Converter::class)  // Register the TypeConverters
-
 abstract class AppDatabase : RoomDatabase() {
 
     // DAOs to access the database tables
@@ -34,10 +28,13 @@ abstract class AppDatabase : RoomDatabase() {
     ) : Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
+            Log.e("AppDatabase", "Database created, populating database...") // Log here
+
             INSTANCE?.let { database ->
                 scope.launch {
                     // Populate the database with initial data
                     populateDatabase(database.candidatDtoDao())
+
                 }
             }
         }
@@ -49,6 +46,9 @@ abstract class AppDatabase : RoomDatabase() {
 
         // Get the singleton instance of the database
         fun getDatabase(context: Context, coroutineScope: CoroutineScope): AppDatabase {
+
+            Log.e("AppDatabase", "Getting database instance") // Add this log to check if it's being called
+
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -68,54 +68,44 @@ abstract class AppDatabase : RoomDatabase() {
             candidatDtoDao.deleteAllCandidates()
 
             // Log before inserting
-            Log.d("AppDatabase", "Starting database population")
+            Log.e("AppDatabase", "Starting database population")
 
             // Insert candidates
             try {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
                         name = "Jin", surname = "Zhao", phone = "", email = "jin@icloud.com",
-                        birthdate = SimpleDateFormat(
-                            "yyyy-MM-dd",
-                            Locale.getDefault()
-                        ).parse("1990-01-01"),
+                        birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 1200.0, note = "Learning programming", isFav = false
                     )
                 )
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
                         name = "Alice", surname = "Pio", phone = "", email = "alice@icloud.com",
-                        birthdate = SimpleDateFormat(
-                            "yyyy-MM-dd",
-                            Locale.getDefault()
-                        ).parse("1990-01-01"),
+                        birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 2400.0, note = "Learning programming", isFav = false
                     )
                 )
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
                         name = "Lane", surname = "Yu", phone = "", email = "lane@icloud.com",
-                        birthdate = SimpleDateFormat(
-                            "yyyy-MM-dd",
-                            Locale.getDefault()
-                        ).parse("1990-01-01"),
+                        birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 3000.0, note = "Learning programming", isFav = true
                     )
                 )
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
                         name = "Lolo", surname = "Li", phone = "", email = "lolo@icloud.com",
-                        birthdate = SimpleDateFormat(
-                            "yyyy-MM-dd",
-                            Locale.getDefault()
-                        ).parse("1990-01-01"),
+                        birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 1300.0, note = "Learning programming", isFav = true
                     )
                 )
 
                 // Log after inserting
                 val allCandidats = candidatDtoDao.getAllCandidats()
-                Log.d(
+                Log.e(
                     "AppDatabase",
                     "Number of candidates inserted: ${allCandidats.size}"
                 )

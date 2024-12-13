@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
+    id("dagger.hilt.android.plugin")
+
 
 }
 
@@ -44,6 +46,7 @@ dependencies {
 
 
     // ViewModel & LiveData
+    implementation ("androidx.fragment:fragment-ktx:1.8.5")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7") // Add this line if not present
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7") // Optional, if you need LiveData
 
