@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        AppDatabase.getDatabase(applicationContext, CoroutineScope(Dispatchers.IO))
+       // AppDatabase.getDatabase(applicationContext, CoroutineScope(Dispatchers.IO))
 
     }
 }

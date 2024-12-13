@@ -11,7 +11,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.p8vitesse.R
+import com.example.p8vitesse.data.database.AppDatabase
+import com.example.p8vitesse.data.database.AppDatabase.Companion.populateDatabase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -26,6 +30,7 @@ class AllFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_all, container, false)
         recyclerView = view.findViewById(R.id.recyclerView)
+
 
         // Initialize the adapter and set it to the RecyclerView
         adapter = AllListAdapter(emptyList())  // Initialize with an empty list
@@ -48,4 +53,5 @@ class AllFragment : Fragment() {
 
         return view
     }
+
 }

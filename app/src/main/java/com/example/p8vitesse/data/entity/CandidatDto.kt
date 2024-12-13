@@ -33,5 +33,8 @@ data class CandidatDto(
     var note: String,
 
     @ColumnInfo(name = "isFav")
-    var isFav: Boolean
-    )
+    var isFav: Boolean,
+
+    @ColumnInfo(name = "profilePicture")
+    var profilePicture: String? // Base64-encoded image string
+)

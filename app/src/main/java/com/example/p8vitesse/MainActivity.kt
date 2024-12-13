@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        AppDatabase.getDatabase(applicationContext, CoroutineScope(Dispatchers.IO))
+       // AppDatabase.getDatabase(applicationContext, CoroutineScope(Dispatchers.IO))
 
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPager)

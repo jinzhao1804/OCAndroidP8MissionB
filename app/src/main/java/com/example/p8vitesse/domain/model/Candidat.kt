@@ -1,5 +1,7 @@
 package com.example.p8vitesse.domain.model
 
+import android.graphics.Bitmap
+import com.example.p8vitesse.data.converter.Converter
 import com.example.p8vitesse.data.entity.CandidatDto
 
 class Candidat(
@@ -11,12 +13,13 @@ class Candidat(
     var birthDate: java.util.Date,
     var desiredSalary: Double,
     var note: String,
-    var isFav: Boolean
+    var isFav: Boolean,
+    val profilePicture: Bitmap?  // Use Bitmap instead of Image
 ) {
 
     fun toDto(): CandidatDto {
         return CandidatDto(
-            id = this.id,  // Ensure the ID is passed here
+            id = this.id,
             name = this.name,
             surname = this.surname,
             phone = this.phone,
@@ -24,14 +27,15 @@ class Candidat(
             birthdate = this.birthDate,
             desiredSalary = this.desiredSalary,
             note = this.note,
-            isFav = this.isFav
+            isFav = this.isFav,
+            profilePicture = Converter().fromBitmap(this.profilePicture)  // Convert Bitmap to String
         )
     }
 
     companion object {
         fun fromDto(dto: CandidatDto): Candidat {
             return Candidat(
-                id = dto.id,  // Ensure the ID is passed here
+                id = dto.id,
                 name = dto.name,
                 surname = dto.surname,
                 phone = dto.phone,
@@ -39,7 +43,8 @@ class Candidat(
                 birthDate = dto.birthdate,
                 desiredSalary = dto.desiredSalary,
                 note = dto.note,
-                isFav = dto.isFav
+                isFav = dto.isFav,
+                profilePicture = Converter().toBitmap(dto.profilePicture)  // Convert String to Bitmap
             )
         }
     }

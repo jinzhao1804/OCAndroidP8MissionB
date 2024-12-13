@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.p8vitesse.R
@@ -29,6 +30,13 @@ class AllListAdapter(private var candidats: List<Candidat>) : RecyclerView.Adapt
         val candidat = candidats[position]
         holder.nameTextView.text = candidat.name
         holder.surnameTextView.text = candidat.surname
+        holder.noteTextView.text = candidat.note
+        //holder.profilPictureView = candidat.profilePicture
+        // Set the profile picture Bitmap to the ImageView
+        candidat.profilePicture?.let {
+            holder.profilPictureView.setImageBitmap(it)
+        }
+
     }
 
 
@@ -40,5 +48,7 @@ class AllListAdapter(private var candidats: List<Candidat>) : RecyclerView.Adapt
     inner class CandidatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
         val surnameTextView: TextView = itemView.findViewById(R.id.surnameTextView)
+        val profilPictureView: ImageView = itemView.findViewById(R.id.profilePictureView)
+        val noteTextView: TextView = itemView.findViewById(R.id.noteTextView)
     }
 }
