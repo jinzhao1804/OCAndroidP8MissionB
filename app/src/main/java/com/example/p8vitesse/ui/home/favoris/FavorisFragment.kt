@@ -1,4 +1,4 @@
-package com.example.p8vitesse.ui
+package com.example.p8vitesse.ui.home.favoris
 
 import android.os.Bundle
 import android.view.LayoutInflater

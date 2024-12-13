@@ -1,4 +1,5 @@
-package com.example.p8vitesse.ui
+package com.example.p8vitesse.ui.home.all
+
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,8 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class FavorisListAdapter(private val items: List<String>) :
-    RecyclerView.Adapter<FavorisListAdapter.ViewHolder>() {
+class AllListAdapter(private val items: List<String>) :
+    RecyclerView.Adapter<AllListAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(android.R.id.text1)

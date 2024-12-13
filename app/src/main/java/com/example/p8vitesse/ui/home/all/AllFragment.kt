@@ -1,4 +1,4 @@
-package com.example.p8vitesse.ui
+package com.example.p8vitesse.ui.home.all
 
 
 import android.os.Bundle

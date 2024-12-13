@@ -1,6 +1,8 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    kotlin("kapt")
+
 }
 
 android {
@@ -33,17 +35,34 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
 
-    //viewpager2
-    implementation ("com.google.android.material:material:1.12.0") // TabLayout and Material UI
-    implementation ("androidx.recyclerview:recyclerview:1.3.2") // RecyclerView for lists
-    implementation ("androidx.viewpager2:viewpager2:1.1.0")     // ViewPager2 for tabs
+
+    // ViewModel & LiveData
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7") // Add this line if not present
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7") // Optional, if you need LiveData
 
 
-    //splash screen
+    // Room dependencies
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    // Hilt for Dependency Injection
+    implementation("com.google.dagger:hilt-android:2.49") // Align Hilt version
+    kapt("com.google.dagger:hilt-compiler:2.49") // Align Hilt version
+
+    // ViewPager2
+    implementation("com.google.android.material:material:1.12.0") // TabLayout and Material UI
+    implementation("androidx.recyclerview:recyclerview:1.3.2") // RecyclerView for lists
+    implementation("androidx.viewpager2:viewpager2:1.1.0")     // ViewPager2 for tabs
+
+    // Splash Screen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     implementation(libs.androidx.core.ktx)

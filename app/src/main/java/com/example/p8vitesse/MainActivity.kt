@@ -2,7 +2,7 @@ package com.example.p8vitesse
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.p8vitesse.ui.ViewPagerAdapter
+import com.example.p8vitesse.ui.home.ViewPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
