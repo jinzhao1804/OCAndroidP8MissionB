@@ -33,7 +33,7 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
         }
     }
 
-    suspend fun getFavoriteCandidates(): List<Candidat> {
+    suspend fun getFavoriteCandidats(): List<Candidat> {
         return candidatDao.getFavoriteCandidats()
             .map { Candidat.fromDto(it) }
     }
