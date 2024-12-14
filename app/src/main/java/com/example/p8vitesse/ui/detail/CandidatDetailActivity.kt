@@ -7,27 +7,33 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
+import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
+import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class CandidatDetailActivity : AppCompatActivity() {
 
     private val candidatViewModel: CandidatDetailViewModel by viewModels()
+    @Inject
+    lateinit var setFavorisCandidatUsecase: SetFavorisCandidatUsecase
+
+    @Inject
+    lateinit var getFavorisCandidatUsecase: GetFavorisCandidatsUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +57,9 @@ class CandidatDetailActivity : AppCompatActivity() {
         }
 
 
+
+
+
     }
 
     private fun fetchAndDisplayCandidatDetails(candidatId: Int) {
@@ -67,6 +76,12 @@ class CandidatDetailActivity : AppCompatActivity() {
                     setSupportActionBar(toolbar)
                     supportActionBar?.title = candidat.name +" " + candidat.surname.toUpperCase()
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                    // In your activity or fragment, assuming you have a 'candidat' object and 'favoriteButton' is already initialized
+
+                    // Initialize the favorite button based on the menu
+                    val menuItem: MenuItem? = findViewById(R.id.action_favorite)
+                    menuItem?.let { toggleFavorite(it, candidat) }
+
                     // Populate the UI with the fetched Candidat data
                     updateBirthdateAndAnniversary(candidat.birthdate.toString())
                     updateSalaries(candidat.desiredSalary)
@@ -80,8 +95,23 @@ class CandidatDetailActivity : AppCompatActivity() {
     // Inflate the menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
+
+        // Get the current Candidat object from the ViewModel
+        val candidat = candidatViewModel.candidat.value
+
+        // Set the correct icon for the favorite button
+        val menuItem = menu?.findItem(R.id.action_favorite)
+        if (candidat?.isFav == true) {
+            // If the Candidat is marked as favorite, set the filled star icon
+            menuItem?.setIcon(R.drawable.ic_star_filled)
+        } else {
+            // If the Candidat is not marked as favorite, set the empty star icon
+            menuItem?.setIcon(R.drawable.ic_star)
+        }
+
         return true
     }
+
 
     // Handle the click events for the icons
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -92,6 +122,12 @@ class CandidatDetailActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_favorite -> {
+
+                // Get the current Candidat object from ViewModel (or wherever it is stored)
+                val candidat = candidatViewModel.candidat.value // Assuming you have a StateFlow or LiveData holding the Candidat object
+
+                // Call the function to toggle the favorite status
+                candidat?.let { toggleFavorite(item, it) }
                 // Handle the star (favorite) icon click
                 return true
             }
@@ -106,6 +142,38 @@ class CandidatDetailActivity : AppCompatActivity() {
             else -> return super.onOptionsItemSelected(item)
         }
     }
+
+    // In your activity or fragment
+
+
+    // Function to toggle the favorite status of a Candidat
+    private fun toggleFavorite(menuItem: MenuItem, candidat: Candidat) {
+        lifecycleScope.launch {
+            // Toggle the favorite status based on current value
+            val isFavorite = !candidat.isFav
+
+            // Update the favorite status in the database
+            candidat.id?.let { setFavorite(it.toInt(), isFavorite) }
+
+            getFavorisCandidatUsecase.execute()
+
+            // Set the appropriate icon based on the new state
+            if (isFavorite) {
+                menuItem.setIcon(R.drawable.ic_star_filled)
+            } else {
+                menuItem.setIcon(R.drawable.ic_star)
+            }
+
+        }
+    }
+
+    // Function to set the favorite status of the Candidat
+    suspend fun setFavorite(candidatId: Int, isFavorite: Boolean) {
+        // Assuming setFavorisCandidatUsecase is already initialized or injected
+        setFavorisCandidatUsecase.execute(candidatId, isFavorite)
+    }
+
+
 
     // Function to set OnClickListeners for Call, SMS, and Email buttons
     private fun setOnClickListeners(candidat: Candidat) {

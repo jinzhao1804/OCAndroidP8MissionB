@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetCandidatByIdUseCase
+import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel  // Ensure this annotation is added
 class CandidatDetailViewModel @Inject constructor(
-    private val getCandidatByIdUseCase: GetCandidatByIdUseCase
+    private val getCandidatByIdUseCase: GetCandidatByIdUseCase,
+    private val getFavorisCandidatsUseCase: GetFavorisCandidatsUseCase
 ) : ViewModel() {
 
     // StateFlow to hold the fetched candidat
@@ -36,4 +38,18 @@ class CandidatDetailViewModel @Inject constructor(
             }
         }
     }
+
+    // Toggle the favorite status and refresh the screen
+    fun refreshListOfFav(candidat: Candidat) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                getFavorisCandidatsUseCase.execute()
+                // Refresh the screen by fetching the updated candidat
+                candidat.id?.let { getCandidatById(it.toInt()) } // Re-fetch the candidate to reflect the updated favorite status
+            } catch (e: Exception) {
+                Log.e("Favorite", "Error updating favorite status", e)
+            }
+        }
+    }
+
 }

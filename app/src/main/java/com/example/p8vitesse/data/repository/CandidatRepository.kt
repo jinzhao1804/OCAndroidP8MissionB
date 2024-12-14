@@ -43,4 +43,10 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
         return candidatDao.getCandidatById(candidatId)
     }
 
+    suspend fun setFavoriteCandidat(candidatId: Int, isFavorite: Boolean){
+        candidatDao.setFavoriteCandidat(candidatId, isFavorite)  // Make sure to implement this method in your DAO
+    }
+
+
+
 }

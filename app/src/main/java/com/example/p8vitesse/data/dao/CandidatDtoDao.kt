@@ -31,5 +31,8 @@ interface CandidatDtoDao {
     @Query("SELECT * FROM candidat WHERE isFav = 1")
     fun getFavoriteCandidats(): List<CandidatDto>
 
+    @Query("UPDATE candidat SET isFav = :isFavorite WHERE id = :candidatId")
+    fun setFavoriteCandidat(candidatId: Int, isFavorite: Boolean)
+
 
 }
