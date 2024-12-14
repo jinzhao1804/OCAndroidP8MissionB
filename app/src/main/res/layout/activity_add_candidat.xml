@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:background="@color/primary_variant"
             app:layout_scrollFlags="scroll|enterAlways"
-            android:title="My Activity Title"
+            android:title="Ajouter un candidat"
             android:elevation="4dp" />
 
 
@@ -41,13 +41,13 @@
 
     <!-- ImageView with padding on all sides -->
     <ImageView
+        android:layout_marginTop="64dp"
         android:id="@+id/userProfilePicture"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="32dp"
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:background="@color/secondary"
-        android:layout_marginTop="8dp"
         android:paddingTop="16dp" />
 
     <!-- Other views can be added below the toolbar -->

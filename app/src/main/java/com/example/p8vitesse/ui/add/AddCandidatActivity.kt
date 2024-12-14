@@ -9,26 +9,32 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.util.Patterns
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.ImageView
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.viewModels
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
+import com.example.p8vitesse.ui.home.all.AllViewModel
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.FileNotFoundException
 import java.util.Calendar
 import java.util.Date
 
+@AndroidEntryPoint
 class AddCandidatActivity : AppCompatActivity() {
     private val REQUEST_CODE_PICK_IMAGE = 1001
     private lateinit var userProfilePicture: ImageView
-
+    private val viewModel: AddCandidatViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +45,7 @@ class AddCandidatActivity : AppCompatActivity() {
         val editText = findViewById<EditText>(R.id.editTextDateOfBirth)
         userProfilePicture = findViewById<ImageView>(R.id.userProfilePicture)
         val editTextEmail = findViewById<EditText>(R.id.emailTextName)
+        val saveFloatingActionButton = findViewById<ExtendedFloatingActionButton>(R.id.fabSave)
 
 
         // Set the toolbar as the app's action bar
@@ -48,7 +55,7 @@ class AddCandidatActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Set the title of the activity
-        supportActionBar?.title = "Activity Title"
+        supportActionBar?.title = "Ajouter un candidat"
 
         showDatePicker(editText)
         userProfilePicture.setOnClickListener {
@@ -60,6 +67,9 @@ class AddCandidatActivity : AppCompatActivity() {
 
         // Call the function to add text watcher for email validation
         validateEmailWhileTyping(editTextEmail)
+
+        saveFloatingActionButton.setOnClickListener { saveCandidat() }
+
     }
 
     // Function to add a TextWatcher to EditText and validate email
@@ -163,5 +173,104 @@ class AddCandidatActivity : AppCompatActivity() {
             datePickerDialog.show()
         }
     }
+
+
+
+
+
+
+    fun saveCandidat() {
+        try {
+            Log.e("AppDatabase", "save function called")
+
+            // Get the EditText views
+            val editTextName = findViewById<EditText>(R.id.editTextName)
+            val editTextSurname = findViewById<EditText>(R.id.editTextSurname)
+            val editTextPhone = findViewById<EditText>(R.id.phoneTextView)
+            val editTextEmail = findViewById<EditText>(R.id.emailTextName)
+            val editTextSalary = findViewById<EditText>(R.id.salaryTextName)
+            val editTextNote = findViewById<EditText>(R.id.noteTextName)
+
+            // Get the text values from the EditText fields
+            val name = editTextName.text.toString().trim()
+            val surname = editTextSurname.text.toString().trim()
+            val phone = editTextPhone.text.toString().trim()
+            val email = editTextEmail.text.toString().trim()
+            val salary = editTextSalary.text.toString().trim().toDoubleOrNull() ?: 0.0
+            val note = editTextNote.text.toString().trim()
+
+            // Validate input data
+            if (name.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            if (surname.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid surname", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            if (!isValidEmail(email)) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            if (phone.isEmpty()) {
+                Toast.makeText(this, "Please enter a phone number", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            if (salary <= 0.0) {
+                Toast.makeText(this, "Please enter a valid salary", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            Log.e("AppDatabase", "Data collected: Name=$name, Surname=$surname, Phone=$phone, Email=$email, Salary=$salary, Note=$note")
+
+
+            // Create a new Candidat object with the provided values
+            val candidat = Candidat(
+                name = name,
+                surname = surname,
+                phone = phone,
+                email = email,
+                birthdate = Date(),  // You can use a DatePicker to get a date input
+                desiredSalary = salary,
+                note = note,
+                isFav = false, // Assuming isFav is a default value
+                profilePicture = null  // Assuming you might add this later, e.g., from an image picker
+            )
+
+            // Save the Candidat using the ViewModel
+            viewModel.addCandidat(candidat)
+
+            Log.e("AppDatabase", "Candidat saved successfully")
+            // Show a success message
+            Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
+
+            // Clear the fields after saving
+            clearFields()
+
+        } catch (e: Exception) {
+            // Handle any unexpected errors
+            Log.e("AppDatabase", "Error saving candidat", e)
+            Toast.makeText(this, "An error occurred while saving the Candidat. Please try again.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+
+
+    // Optionally, clear the input fields after saving
+    fun clearFields() {
+        findViewById<EditText>(R.id.editTextName).text.clear()
+        findViewById<EditText>(R.id.editTextSurname).text.clear()
+        findViewById<EditText>(R.id.phoneTextView).text.clear()
+        findViewById<EditText>(R.id.emailTextName).text.clear()
+        findViewById<EditText>(R.id.salaryTextName).text.clear()
+        findViewById<EditText>(R.id.noteTextName).text.clear()
+    }
+
+
+
 
 }
