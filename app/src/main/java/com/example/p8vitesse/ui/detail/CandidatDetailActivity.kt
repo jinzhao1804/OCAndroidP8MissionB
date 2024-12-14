@@ -49,12 +49,7 @@ class CandidatDetailActivity : AppCompatActivity() {
             }
         }
 
-        // Initialize the Toolbar
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
 
-        // Set a back button on the left side
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun fetchAndDisplayCandidatDetails(candidatId: Int) {
@@ -65,6 +60,12 @@ class CandidatDetailActivity : AppCompatActivity() {
         lifecycleScope.launch {
             candidatViewModel.candidat.collect { candidat ->
                 candidat?.let {
+
+                    // Initialize the Toolbar
+                    val toolbar: Toolbar = findViewById(R.id.toolbar)
+                    setSupportActionBar(toolbar)
+                    supportActionBar?.title = candidat.name +" " + candidat.surname.toUpperCase()
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
                     // Populate the UI with the fetched Candidat data
                     updateBirthdateAndAnniversary(candidat.birthdate.toString())
                     updateSalaries(candidat.desiredSalary)
@@ -130,13 +131,31 @@ class CandidatDetailActivity : AppCompatActivity() {
         val textViewBirthdate: TextView = findViewById(R.id.textViewBirthdate)
         val textViewAnniversaire: TextView = findViewById(R.id.textViewAnniversaire)
 
+        // Format the birthdate to jj/mm/aaaa
+        val formattedBirthdate = formatBirthdate(birthdate)
+
         // Calculate the age
         val age = calculateAge(birthdate)
 
         // Set the text for the birthdate, age, and anniversary
-        textViewBirthdate.text = "Birthdate: $birthdate (Age: $age)"
-        textViewAnniversaire.text = "Anniversaire: $birthdate"
+        textViewBirthdate.text = "Birthdate: $formattedBirthdate (Age: $age)"
+        textViewAnniversaire.text = "Anniversaire"
     }
+
+    // Function to format the birthdate to jj/mm/aaaa
+    private fun formatBirthdate(birthdate: String): String {
+        try {
+            val sdfInput = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.getDefault())
+            val date = sdfInput.parse(birthdate)
+
+            val sdfOutput = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())  // Desired format
+            return sdfOutput.format(date)
+        } catch (e: Exception) {
+            Log.e("CandidatDetailActivity", "Error formatting birthdate", e)
+            return "Invalid Date"
+        }
+    }
+
 
     // Function to calculate the age from the birthdate
     private fun calculateAge(birthdate: String): Int {
