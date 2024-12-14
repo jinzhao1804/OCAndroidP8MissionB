@@ -16,6 +16,7 @@ import com.example.p8vitesse.R
 import com.example.p8vitesse.databinding.FragmentAllBinding
 import com.example.p8vitesse.ui.add.AddCandidatActivity
 import com.example.p8vitesse.ui.add.AddCandidatViewModel
+import com.example.p8vitesse.ui.detail.CandidatDetailActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -28,7 +29,6 @@ class AllFragment : Fragment(R.layout.fragment_all) {
     private var _binding: FragmentAllBinding? = null  // Nullable binding reference
     private val binding get() = _binding!!  // Non-nullable reference to binding
     private val viewModel: AllViewModel by viewModels()
-    private val allCandidatsViewModel: AddCandidatViewModel by viewModels() // Getting ViewModel instance
 
     private lateinit var adapter: AllListAdapter
 
@@ -42,21 +42,24 @@ class AllFragment : Fragment(R.layout.fragment_all) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize the adapter and set it to the RecyclerView
-        adapter = AllListAdapter(emptyList())  // Initialize with an empty list
+        // Initialize the adapter with a click listener
+        adapter = AllListAdapter(emptyList()) { candidat ->
+            // Handle the item click and open the detail activity
+            val intent = Intent(requireContext(), CandidatDetailActivity::class.java)
+            intent.putExtra("CANDIDAT_ID", candidat.id)  // Pass the Candidat's ID
+            startActivity(intent)  // Start the detail activity
+        }
+
+        // Set the RecyclerView's layout manager and adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
-
 
         // Observe the candidates list from the ViewModel
         lifecycleScope.launch {
             viewModel.candidats.collect { candidats ->
-                // Update the RecyclerView adapter with the new list of candidats
-                adapter.updateCandidats(candidats)
+                adapter.updateCandidats(candidats)  // Update the adapter with the latest list
             }
         }
-
-
 
         // Trigger fetching of candidates
         viewModel.fetchCandidats()
@@ -64,10 +67,12 @@ class AllFragment : Fragment(R.layout.fragment_all) {
         // Set up FloatingActionButton to open AddCandidatActivity
         binding.squareFab.setOnClickListener {
             val intent = Intent(requireContext(), AddCandidatActivity::class.java)
-            addCandidatLauncher.launch(intent)  // Use the launcher to start the activity
+            addCandidatLauncher.launch(intent)  // Launch the AddCandidatActivity
         }
-
     }
+
+
+
     private val addCandidatLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {

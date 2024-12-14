@@ -1,5 +1,6 @@
 package com.example.p8vitesse.ui.home.favoris
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.p8vitesse.R
+import com.example.p8vitesse.ui.detail.CandidatDetailActivity
 import com.example.p8vitesse.ui.home.all.AllListAdapter
 import com.example.p8vitesse.ui.home.all.AllViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +32,13 @@ class FavorisFragment : Fragment() {
 
 
         // Initialize the adapter and set it to the RecyclerView
-        adapter = AllListAdapter(emptyList())  // Initialize with an empty list
+        // Initialize the adapter with a click listener
+        adapter = AllListAdapter(emptyList()) { candidat ->
+            // Handle the item click and open the detail activity
+            val intent = Intent(requireContext(), CandidatDetailActivity::class.java)
+            intent.putExtra("CANDIDAT_ID", candidat.id)  // Pass the Candidat's ID
+            startActivity(intent)  // Start the detail activity
+        }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 

@@ -11,14 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
 
-class AllListAdapter(private var candidats: List<Candidat>) : RecyclerView.Adapter<AllListAdapter.CandidatViewHolder>() {
+class AllListAdapter(private var candidats: List<Candidat>, private val onItemClick: (Candidat) -> Unit) : RecyclerView.Adapter<AllListAdapter.CandidatViewHolder>() {
 
     // Update the candidates list when new data is received
     fun updateCandidats(newCandidats: List<Candidat>) {
-        Log.e("AppDatabase", "Updating with ${newCandidats.size} candidates")  // Add this log
-
+        Log.e("AppDatabase", "Updating with ${newCandidats.size} candidates")
         candidats = newCandidats
-        notifyDataSetChanged()  // Notify the adapter that data has changed
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidatViewHolder {
@@ -31,17 +30,19 @@ class AllListAdapter(private var candidats: List<Candidat>) : RecyclerView.Adapt
         holder.nameTextView.text = candidat.name
         holder.surnameTextView.text = candidat.surname
         holder.noteTextView.text = candidat.note
-        //holder.profilPictureView = candidat.profilePicture
+
         // Set the profile picture Bitmap to the ImageView
         candidat.profilePicture?.let {
             holder.profilPictureView.setImageBitmap(it)
         }
 
+        // Set up the click listener for each item
+        holder.itemView.setOnClickListener {
+            onItemClick(candidat)  // Trigger the click callback with the selected candidat
+        }
     }
 
-
     override fun getItemCount(): Int {
-        Log.d("AppDatabase", "Item count: ${candidats.size}")  // Log the size of the list
         return candidats.size
     }
 
