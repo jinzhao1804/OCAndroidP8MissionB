@@ -1,5 +1,6 @@
 package com.example.p8vitesse.ui.detail
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -17,14 +19,16 @@ import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
+import com.example.p8vitesse.ui.home.favoris.FavorisListAdapter
+import com.example.p8vitesse.ui.home.favoris.FavorisViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
-
-
 @AndroidEntryPoint
 class CandidatDetailActivity : AppCompatActivity() {
 
@@ -35,172 +39,137 @@ class CandidatDetailActivity : AppCompatActivity() {
     @Inject
     lateinit var getFavorisCandidatUsecase: GetFavorisCandidatsUseCase
 
+    lateinit var favorisListAdapter: FavorisListAdapter
+    private val favorisViewModel: FavorisViewModel by viewModels()
+
+    private var favoriteIcon: MenuItem? = null // Change to nullable
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_candidat_detail)  // Set the layout for the detail activity
+        setContentView(R.layout.activity_candidat_detail)
 
         Log.e("AppDatabase", "Intent data: ${intent.getIntExtra("CANDIDAT_ID", -1)}")
 
-        // Get the Candidat ID passed from the AllFragment
-        val candidatId = intent.getStringExtra("CANDIDAT_ID")  // Default value is -1 if no ID is passed
-
+        val candidatId = intent.getStringExtra("CANDIDAT_ID")
         Log.e("AppDatabase", "CandidatId fetched id is : $candidatId")
 
-        // You can use the Candidat ID to fetch more details from the ViewModel or database
-        if (candidatId != null) {
-            if (candidatId.toInt() != -1) {
-                // Fetch and display the Candidat details using the ID
-                fetchAndDisplayCandidatDetails(candidatId.toInt())
-            } else {
-                // Handle the case when no valid ID is passed
+        if (candidatId != null && candidatId.toInt() != -1) {
+            fetchAndDisplayCandidatDetails(candidatId.toInt())
+        }
+
+       // Initialize the favorisListAdapter
+        favorisListAdapter = FavorisListAdapter(emptyList()) {}
+
+        // Observe favoris list changes
+        observeFavorisList()
+
+        candidatId?.let { candidatViewModel.getCandidatById(it.toInt()) }
+
+        lifecycleScope.launch {
+            candidatViewModel.candidat.collect { updatedCandidat ->
+                updatedCandidat?.let {
+                    it.id?.let { id -> fetchAndDisplayCandidatDetails(id.toInt()) }
+                }
             }
         }
 
+        lifecycleScope.launch {
+            favorisViewModel.favCandidats.collect { updatedFavorisList ->
+                refreshFavorisList(updatedFavorisList)
+            }
+        }
+    }
 
-
-
-
+    private fun observeFavorisList() {
+        lifecycleScope.launch {
+            favorisViewModel.favCandidats.collect { favorisList ->
+                // Update the UI with the new favoris list
+                refreshFavorisList(favorisList)
+            }
+        }
     }
 
     private fun fetchAndDisplayCandidatDetails(candidatId: Int) {
-
-        // First, trigger the ViewModel to fetch the candidat by ID
         candidatViewModel.getCandidatById(candidatId)
-        // Collect the Candidat data from the StateFlow
+
         lifecycleScope.launch {
             candidatViewModel.candidat.collect { candidat ->
                 candidat?.let {
-
-                    // Initialize the Toolbar
                     val toolbar: Toolbar = findViewById(R.id.toolbar)
                     setSupportActionBar(toolbar)
-                    supportActionBar?.title = candidat.name +" " + candidat.surname.toUpperCase()
+                    supportActionBar?.title = "${candidat.name} ${candidat.surname.toUpperCase()}"
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
-                    // In your activity or fragment, assuming you have a 'candidat' object and 'favoriteButton' is already initialized
 
                     // Initialize the favorite button based on the menu
-                    val menuItem: MenuItem? = findViewById(R.id.action_favorite)
-                    menuItem?.let { toggleFavorite(it, candidat) }
-
-                    // Populate the UI with the fetched Candidat data
-                    updateBirthdateAndAnniversary(candidat.birthdate.toString())
-                    updateSalaries(candidat.desiredSalary)
-                    setNoteContent("Notes", candidat.note)
+                    favoriteIcon?.isVisible = true  // Ensure the icon is visible when the menu is ready
+                    updateFavoriteIcon(candidat.isFav)
                     setOnClickListeners(candidat)
+                    updateSalaries(candidat.desiredSalary)
+                    setNoteContent("Notes",candidat.note)
                 }
             }
         }
     }
 
-    // Inflate the menu
+    private fun refreshFavorisList(favorisList: List<Candidat>) {
+        Log.d("Favoris", "Updated favoris list: $favorisList")
+        favorisViewModel.fetchFavCandidats()
+        // Update the adapter data with the new favoris list
+        favorisListAdapter.updateCandidats(favorisList)
+        // Notify the adapter to refresh the list (if needed)
+        favorisListAdapter.notifyDataSetChanged()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
+        favoriteIcon = menu?.findItem(R.id.action_favorite) // Initialize here
 
-        // Get the current Candidat object from the ViewModel
         val candidat = candidatViewModel.candidat.value
-
-        // Set the correct icon for the favorite button
-        val menuItem = menu?.findItem(R.id.action_favorite)
-        if (candidat?.isFav == true) {
-            // If the Candidat is marked as favorite, set the filled star icon
-            menuItem?.setIcon(R.drawable.ic_star_filled)
-        } else {
-            // If the Candidat is not marked as favorite, set the empty star icon
-            menuItem?.setIcon(R.drawable.ic_star)
+        if (candidat != null) {
+            updateFavoriteIcon(candidat.isFav)
         }
 
         return true
     }
 
+    private fun updateFavoriteIcon(isFavorite: Boolean) {
+        favoriteIcon?.let {
+            if (isFavorite) {
+                it.setIcon(R.drawable.ic_star_filled)
+            } else {
+                it.setIcon(R.drawable.ic_star)
+            }
+        }
+    }
 
-    // Handle the click events for the icons
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
-                // Handle back button click
                 onBackPressed()
-                return true
+                true
             }
             R.id.action_favorite -> {
-
-                // Get the current Candidat object from ViewModel (or wherever it is stored)
-                val candidat = candidatViewModel.candidat.value // Assuming you have a StateFlow or LiveData holding the Candidat object
-
-                // Call the function to toggle the favorite status
-                candidat?.let { toggleFavorite(item, it) }
-                // Handle the star (favorite) icon click
-                return true
+                val candidat = candidatViewModel.candidat.value
+                candidat?.let {
+                    candidatViewModel.toggleFavorite(it)
+                }
+                true
             }
-            R.id.action_edit -> {
-                // Handle the edit icon click
-                return true
-            }
-            R.id.action_delete -> {
-                // Handle the delete icon click
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
-    // In your activity or fragment
 
-
-    // Function to toggle the favorite status of a Candidat
-    private fun toggleFavorite(menuItem: MenuItem, candidat: Candidat) {
-        lifecycleScope.launch {
-            // Toggle the favorite status based on current value
-            val isFavorite = !candidat.isFav
-
-            // Update the favorite status in the database
-            candidat.id?.let { setFavorite(it.toInt(), isFavorite) }
-
-            getFavorisCandidatUsecase.execute()
-
-            // Set the appropriate icon based on the new state
-            if (isFavorite) {
-                menuItem.setIcon(R.drawable.ic_star_filled)
-            } else {
-                menuItem.setIcon(R.drawable.ic_star)
-            }
-
-        }
-    }
-
-    // Function to set the favorite status of the Candidat
-    suspend fun setFavorite(candidatId: Int, isFavorite: Boolean) {
-        // Assuming setFavorisCandidatUsecase is already initialized or injected
-        setFavorisCandidatUsecase.execute(candidatId, isFavorite)
-    }
-
-
-
-    // Function to set OnClickListeners for Call, SMS, and Email buttons
     private fun setOnClickListeners(candidat: Candidat) {
-        // Set OnClickListener for the Call icon
-        val callButton: View = findViewById(R.id.icon_call)  // Assuming you have a view with ID 'callButton'
-        callButton.setOnClickListener {
-            onCallClicked(candidat)
-        }
-
-        // Set OnClickListener for the SMS icon
-        val smsButton: View = findViewById(R.id.icon_sms)  // Assuming you have a view with ID 'smsButton'
-        smsButton.setOnClickListener {
-            onSmsClicked(candidat)
-        }
-
-        // Set OnClickListener for the Email icon
-        val emailButton: View = findViewById(R.id.icon_email)  // Assuming you have a view with ID 'emailButton'
-        emailButton.setOnClickListener {
-            onEmailClicked(candidat)
-        }
+        findViewById<View>(R.id.icon_call).setOnClickListener { onCallClicked(candidat) }
+        findViewById<View>(R.id.icon_sms).setOnClickListener { onSmsClicked(candidat) }
+        findViewById<View>(R.id.icon_email).setOnClickListener { onEmailClicked(candidat) }
     }
 
-    // Handle call icon click
     fun onCallClicked(candidat: Candidat) {
-        // Fetch phone number dynamically from the candidat object
-        val phoneNumber = candidat.phone  // Assuming 'candidat' has a 'phoneNumber' field
-        if (phoneNumber != null && phoneNumber.isNotEmpty()) {
+        val phoneNumber = candidat.phone
+        if (!phoneNumber.isNullOrEmpty()) {
             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
             startActivity(intent)
         } else {
@@ -208,11 +177,9 @@ class CandidatDetailActivity : AppCompatActivity() {
         }
     }
 
-    // Handle SMS icon click
     fun onSmsClicked(candidat: Candidat) {
-        // Fetch SMS number dynamically from the candidat object
-        val smsNumber = candidat.phone  // Assuming 'candidat' has an 'smsNumber' field
-        if (smsNumber != null && smsNumber.isNotEmpty()) {
+        val smsNumber = candidat.phone
+        if (!smsNumber.isNullOrEmpty()) {
             val smsUri = Uri.parse("smsto:$smsNumber")
             val intent = Intent(Intent.ACTION_SENDTO, smsUri)
             startActivity(intent)
@@ -221,11 +188,9 @@ class CandidatDetailActivity : AppCompatActivity() {
         }
     }
 
-    // Handle email icon click
     fun onEmailClicked(candidat: Candidat) {
-        // Fetch email dynamically from the candidat object
-        val email = candidat.email  // Assuming 'candidat' has an 'email' field
-        if (email != null && email.isNotEmpty()) {
+        val email = candidat.email
+        if (!email.isNullOrEmpty()) {
             val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
             startActivity(Intent.createChooser(emailIntent, "Send Email"))
         } else {
@@ -233,30 +198,23 @@ class CandidatDetailActivity : AppCompatActivity() {
         }
     }
 
-    // Function to update birthdate, age, and anniversary
     private fun updateBirthdateAndAnniversary(birthdate: String) {
-        // Get references to the TextViews
         val textViewBirthdate: TextView = findViewById(R.id.textViewBirthdate)
         val textViewAnniversaire: TextView = findViewById(R.id.textViewAnniversaire)
 
-        // Format the birthdate to jj/mm/aaaa
         val formattedBirthdate = formatBirthdate(birthdate)
-
-        // Calculate the age
         val age = calculateAge(birthdate)
 
-        // Set the text for the birthdate, age, and anniversary
         textViewBirthdate.text = "Birthdate: $formattedBirthdate (Age: $age)"
         textViewAnniversaire.text = "Anniversaire"
     }
 
-    // Function to format the birthdate to jj/mm/aaaa
     private fun formatBirthdate(birthdate: String): String {
         try {
             val sdfInput = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.getDefault())
             val date = sdfInput.parse(birthdate)
 
-            val sdfOutput = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())  // Desired format
+            val sdfOutput = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             return sdfOutput.format(date)
         } catch (e: Exception) {
             Log.e("CandidatDetailActivity", "Error formatting birthdate", e)
@@ -264,25 +222,20 @@ class CandidatDetailActivity : AppCompatActivity() {
         }
     }
 
-
-    // Function to calculate the age from the birthdate
     private fun calculateAge(birthdate: String): Int {
         val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.getDefault())
-        val birthDate = sdf.parse(birthdate)  // Parsing the birthdate string
+        val birthDate = sdf.parse(birthdate)
 
-        // Check if parsing was successful
         birthDate?.let {
             val calendar = Calendar.getInstance()
             val currentYear = calendar.get(Calendar.YEAR)
 
-            // Get birth year
             val birthCalendar = Calendar.getInstance()
             birthCalendar.time = birthDate
             val birthYear = birthCalendar.get(Calendar.YEAR)
 
             var age = currentYear - birthYear
 
-            // If birthday hasn't occurred yet this year, subtract 1 from age
             if (calendar.get(Calendar.MONTH) < birthCalendar.get(Calendar.MONTH) ||
                 (calendar.get(Calendar.MONTH) == birthCalendar.get(Calendar.MONTH) && calendar.get(Calendar.DAY_OF_MONTH) < birthCalendar.get(Calendar.DAY_OF_MONTH))) {
                 age--
@@ -291,39 +244,29 @@ class CandidatDetailActivity : AppCompatActivity() {
             return age
         }
 
-        // Return 0 if parsing failed (in case birthDate is null)
         return 0
     }
 
-
-    // Function to update the salaries in the TextViews
     fun updateSalaries(salaryInEUR: Double) {
-        // Get references to the TextViews
         val textViewSalaryEUR: TextView = findViewById(R.id.textViewSalaryEUR)
         val textViewSalaryGBP: TextView = findViewById(R.id.textViewSalaryGBP)
 
-        // Convert Euro to Pounds
         val salaryInGBP = convertEuroToPounds(salaryInEUR)
 
-        // Set the text for the salaries
         textViewSalaryEUR.text = "$salaryInEUR EUR"
         textViewSalaryGBP.text = "$salaryInGBP Pounds"
     }
 
-    // Function to convert Euro to Pounds
     fun convertEuroToPounds(euroAmount: Double): Double {
-        val exchangeRate = 0.86  // Example exchange rate: 1 Euro = 0.86 Pounds
+        val exchangeRate = 0.86
         return euroAmount * exchangeRate
     }
 
     fun setNoteContent(noteTitle: String, noteContent: String) {
-        // Get references to the TextViews
         val textViewNotesTitle: TextView = findViewById(R.id.textViewNotesTitle)
         val textViewNotesContent: TextView = findViewById(R.id.textViewNotesContent)
 
-        // Set the text for the title and content
         textViewNotesTitle.text = noteTitle
         textViewNotesContent.text = noteContent
     }
-
 }

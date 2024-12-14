@@ -48,5 +48,4 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
     }
 
 
-
 }

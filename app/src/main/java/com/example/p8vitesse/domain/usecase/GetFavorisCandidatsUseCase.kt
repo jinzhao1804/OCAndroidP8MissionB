@@ -1,7 +1,6 @@
 package com.example.p8vitesse.domain.usecase
 
 import com.example.p8vitesse.data.repository.CandidatRepository
-
 import com.example.p8vitesse.domain.model.Candidat
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers

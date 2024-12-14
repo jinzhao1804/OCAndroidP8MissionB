@@ -45,6 +45,7 @@ class FavorisFragment : Fragment() {
         recyclerView.adapter = adapter
 
 
+
         // Observe the candidates list from the ViewModel
         lifecycleScope.launch {
             viewModel.favCandidats.collect { candidats ->
@@ -52,11 +53,11 @@ class FavorisFragment : Fragment() {
                 Log.e("AppDatabase", "Updated candidats: $candidats")
 
                 adapter.updateCandidats(candidats)
+                // Trigger fetching of candidates
+                viewModel.fetchFavCandidats()
             }
         }
 
-        // Trigger fetching of candidates
-        viewModel.fetchFavCandidats()
 
         return view
     }

@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import com.example.p8vitesse.data.converter.Converter
 import com.example.p8vitesse.data.entity.CandidatDto
 
-class Candidat(
+data class Candidat(
     val id: Long? = null,
     var name: String,
     var surname: String,

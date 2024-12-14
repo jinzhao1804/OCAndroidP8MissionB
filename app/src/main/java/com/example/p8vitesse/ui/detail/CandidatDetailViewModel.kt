@@ -2,10 +2,12 @@ package com.example.p8vitesse.ui.detail
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetCandidatByIdUseCase
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
+import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,42 +16,59 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel  // Ensure this annotation is added
+@HiltViewModel
 class CandidatDetailViewModel @Inject constructor(
     private val getCandidatByIdUseCase: GetCandidatByIdUseCase,
-    private val getFavorisCandidatsUseCase: GetFavorisCandidatsUseCase
+    private val setFavorisCandidatUsecase: SetFavorisCandidatUsecase,
+    private val getFavorisCandidatUsecase: GetFavorisCandidatsUseCase
 ) : ViewModel() {
 
-    // StateFlow to hold the fetched candidat
-    private val _candidat = MutableStateFlow<Candidat?>(null)
+    private val _candidat = MutableStateFlow<Candidat?>(null)  // For single Candidat
     val candidat: StateFlow<Candidat?> = _candidat.asStateFlow()
+
+    private val _favorisList = MutableStateFlow<List<Candidat>>(emptyList())  // For list of Candidats
+    val favorisList: StateFlow<List<Candidat>> = _favorisList.asStateFlow()
 
     // Function to fetch a candidat by ID
     fun getCandidatById(candidatId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Fetch the candidat using GetCandidatByIdUseCase
                 val fetchedCandidat = getCandidatByIdUseCase.execute(candidatId)
-                _candidat.value = fetchedCandidat
-
-                Log.e("AppDatabase", "Candidat detail viewmodel: $fetchedCandidat")
+                _candidat.value = fetchedCandidat  // Correctly assign a single Candidat
             } catch (e: Exception) {
-                Log.e("AppDatabase", "Error fetching candidat", e)
+                Log.e("Error", "Error fetching candidat by id", e)
             }
         }
     }
 
-    // Toggle the favorite status and refresh the screen
-    fun refreshListOfFav(candidat: Candidat) {
+    // Toggle the favorite status and refresh the list and screen
+    fun toggleFavorite(candidat: Candidat) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                getFavorisCandidatsUseCase.execute()
-                // Refresh the screen by fetching the updated candidat
-                candidat.id?.let { getCandidatById(it.toInt()) } // Re-fetch the candidate to reflect the updated favorite status
+                // Update the favorite status
+                val updatedCandidat = candidat.copy(isFav = !candidat.isFav)
+                updatedCandidat.id?.let {
+                    setFavorisCandidatUsecase.execute(it.toInt(), updatedCandidat.isFav)
+                }
+
+                // After updating, refresh the list and screen
+                _candidat.value = updatedCandidat  // Immediately update the screen with the new Candidat
+                refreshFavoriteList()  // Refresh the favoris list
             } catch (e: Exception) {
-                Log.e("Favorite", "Error updating favorite status", e)
+                Log.e("Error", "Error toggling favorite", e)
             }
         }
     }
 
+    // Refresh the list of favorite candidates
+    private fun refreshFavoriteList() {
+        viewModelScope.launch {
+            try {
+                val updatedFavoris = getFavorisCandidatUsecase.execute()
+                _favorisList.value = updatedFavoris  // Assign the List<Candidat> directly to _favorisList
+            } catch (e: Exception) {
+                Log.e("Error", "Error fetching favoris list", e)
+            }
+        }
+    }
 }
