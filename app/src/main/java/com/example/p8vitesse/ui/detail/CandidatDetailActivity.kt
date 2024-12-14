@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.p8vitesse.R
+import com.example.p8vitesse.domain.model.Candidat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -70,6 +71,7 @@ class CandidatDetailActivity : AppCompatActivity() {
                     updateBirthdateAndAnniversary(candidat.birthdate.toString())
                     updateSalaries(candidat.desiredSalary)
                     setNoteContent("Notes", candidat.note)
+                    setOnClickListeners(candidat)
                 }
             }
         }
@@ -105,24 +107,62 @@ class CandidatDetailActivity : AppCompatActivity() {
         }
     }
 
+    // Function to set OnClickListeners for Call, SMS, and Email buttons
+    private fun setOnClickListeners(candidat: Candidat) {
+        // Set OnClickListener for the Call icon
+        val callButton: View = findViewById(R.id.icon_call)  // Assuming you have a view with ID 'callButton'
+        callButton.setOnClickListener {
+            onCallClicked(candidat)
+        }
+
+        // Set OnClickListener for the SMS icon
+        val smsButton: View = findViewById(R.id.icon_sms)  // Assuming you have a view with ID 'smsButton'
+        smsButton.setOnClickListener {
+            onSmsClicked(candidat)
+        }
+
+        // Set OnClickListener for the Email icon
+        val emailButton: View = findViewById(R.id.icon_email)  // Assuming you have a view with ID 'emailButton'
+        emailButton.setOnClickListener {
+            onEmailClicked(candidat)
+        }
+    }
+
     // Handle call icon click
-    fun onCallClicked(view: View) {
-        val phoneNumber = "tel:+1234567890"  // Replace with the desired phone number
-        val intent = Intent(Intent.ACTION_DIAL, Uri.parse(phoneNumber))
-        startActivity(intent)
+    fun onCallClicked(candidat: Candidat) {
+        // Fetch phone number dynamically from the candidat object
+        val phoneNumber = candidat.phone  // Assuming 'candidat' has a 'phoneNumber' field
+        if (phoneNumber != null && phoneNumber.isNotEmpty()) {
+            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+            startActivity(intent)
+        } else {
+            Log.e("CandidatDetailActivity", "Phone number is not available.")
+        }
     }
 
     // Handle SMS icon click
-    fun onSmsClicked(view: View) {
-        val smsUri = Uri.parse("smsto:+1234567890")  // Replace with the desired phone number
-        val intent = Intent(Intent.ACTION_SENDTO, smsUri)
-        startActivity(intent)
+    fun onSmsClicked(candidat: Candidat) {
+        // Fetch SMS number dynamically from the candidat object
+        val smsNumber = candidat.phone  // Assuming 'candidat' has an 'smsNumber' field
+        if (smsNumber != null && smsNumber.isNotEmpty()) {
+            val smsUri = Uri.parse("smsto:$smsNumber")
+            val intent = Intent(Intent.ACTION_SENDTO, smsUri)
+            startActivity(intent)
+        } else {
+            Log.e("CandidatDetailActivity", "SMS number is not available.")
+        }
     }
 
     // Handle email icon click
-    fun onEmailClicked(view: View) {
-        val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:example@example.com"))  // Replace with the desired email
-        startActivity(Intent.createChooser(emailIntent, "Send Email"))
+    fun onEmailClicked(candidat: Candidat) {
+        // Fetch email dynamically from the candidat object
+        val email = candidat.email  // Assuming 'candidat' has an 'email' field
+        if (email != null && email.isNotEmpty()) {
+            val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
+            startActivity(Intent.createChooser(emailIntent, "Send Email"))
+        } else {
+            Log.e("CandidatDetailActivity", "Email is not available.")
+        }
     }
 
     // Function to update birthdate, age, and anniversary

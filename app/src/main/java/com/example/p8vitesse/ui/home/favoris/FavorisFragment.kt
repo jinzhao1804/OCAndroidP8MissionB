@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 class FavorisFragment : Fragment() {
     private val viewModel: FavorisViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: AllListAdapter
+    private lateinit var adapter: FavorisListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -32,12 +32,14 @@ class FavorisFragment : Fragment() {
 
 
         // Initialize the adapter and set it to the RecyclerView
-        // Initialize the adapter with a click listener
-        adapter = AllListAdapter(emptyList()) { candidat ->
-            // Handle the item click and open the detail activity
+        adapter = FavorisListAdapter(emptyList()) { candidat ->
+            // Handle the item click and pass the Candidat ID to the activity
             val intent = Intent(requireContext(), CandidatDetailActivity::class.java)
-            intent.putExtra("CANDIDAT_ID", candidat.id)  // Pass the Candidat's ID
+            intent.putExtra("CANDIDAT_ID", candidat.id.toString())  // Pass the Candidat's ID
             startActivity(intent)  // Start the detail activity
+
+            Log.e("AppDatabase", "Candidat id put: ${candidat.id}")
+
         }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter

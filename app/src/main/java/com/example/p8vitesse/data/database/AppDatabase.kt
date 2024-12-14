@@ -84,7 +84,7 @@ abstract class AppDatabase : RoomDatabase() {
                 // Insert candidates with profile pictures
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
-                        name = "Jin", surname = "Zhao", phone = "", email = "jin@icloud.com",
+                        name = "Jin", surname = "Zhao", phone = "12345", email = "jin@icloud.com",
                         birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 1200.0, note = "Learning programming", isFav = false,
                         profilePicture = profilePictureBase64
@@ -92,7 +92,7 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
-                        name = "Alice", surname = "Pio", phone = "", email = "alice@icloud.com",
+                        name = "Alice", surname = "Pio", phone = "67890", email = "alice@icloud.com",
                         birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 2400.0, note = "Learning programming", isFav = false,
                         profilePicture = profilePictureBase64
@@ -100,7 +100,7 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
-                        name = "Lane", surname = "Yu", phone = "", email = "lane@icloud.com",
+                        name = "Lane", surname = "Yu", phone = "11111", email = "lane@icloud.com",
                         birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 3000.0, note = "Learning programming", isFav = true,
                         profilePicture = profilePictureBase64
@@ -108,7 +108,7 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 candidatDtoDao.insertCandidat(
                     CandidatDto(
-                        name = "Lolo", surname = "Li", phone = "", email = "lolo@icloud.com",
+                        name = "Lolo", surname = "Li", phone = "000000", email = "lolo@icloud.com",
                         birthdate = dateFormat.parse("1990-01-01"),
                         desiredSalary = 1300.0, note = "Learning programming", isFav = true,
                         profilePicture = profilePictureBase64
