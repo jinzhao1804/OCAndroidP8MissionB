@@ -3,6 +3,7 @@ package com.example.p8vitesse.ui.home.all
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,12 +44,20 @@ class AllFragment : Fragment(R.layout.fragment_all) {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize the adapter with a click listener
+        // Initialize the adapter with a click listener
         adapter = AllListAdapter(emptyList()) { candidat ->
-            // Handle the item click and open the detail activity
+            // Handle the item click and pass the Candidat ID to the activity
             val intent = Intent(requireContext(), CandidatDetailActivity::class.java)
-            intent.putExtra("CANDIDAT_ID", candidat.id)  // Pass the Candidat's ID
+            intent.putExtra("CANDIDAT_ID", candidat.id.toString())  // Pass the Candidat's ID
             startActivity(intent)  // Start the detail activity
+
+
+
+            Log.e("AppDatabase", "Candidat id put: ${candidat.id}")
+
+
         }
+
 
         // Set the RecyclerView's layout manager and adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())

@@ -5,6 +5,7 @@ import com.example.p8vitesse.data.dao.CandidatDtoDao
 import com.example.p8vitesse.data.database.AppDatabase
 import com.example.p8vitesse.data.repository.CandidatRepository
 import com.example.p8vitesse.domain.usecase.GetAllCandidatsUseCase
+import com.example.p8vitesse.domain.usecase.GetCandidatByIdUseCase
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import dagger.Module
 import dagger.Provides
@@ -53,6 +54,11 @@ class AppModule {
     @Provides
     fun provideGetAllFavCandidatsUseCase(candidatRepository: CandidatRepository): GetFavorisCandidatsUseCase {
         return GetFavorisCandidatsUseCase(candidatRepository)
+    }
+
+    @Provides
+    fun provideGetCandidatByIdUseCase(candidatRepository: CandidatRepository): GetCandidatByIdUseCase {
+        return GetCandidatByIdUseCase(candidatRepository)
     }
 
 

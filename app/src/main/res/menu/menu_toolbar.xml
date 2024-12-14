@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Star Icon -->
+    <item
+        android:id="@+id/action_favorite"
+        android:icon="@drawable/ic_star"
+        android:title="Favorite"
+        app:showAsAction="ifRoom" />
+
+    <!-- Edit Icon -->
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_edit"
+        android:title="Edit"
+        app:showAsAction="ifRoom" />
+
+    <!-- Delete Icon -->
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/ic_delete"
+        android:title="Delete"
+        app:showAsAction="ifRoom" />
+</menu>
