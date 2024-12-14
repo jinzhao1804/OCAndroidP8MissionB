@@ -251,6 +251,10 @@ class AddCandidatActivity : AppCompatActivity() {
             // Clear the fields after saving
             clearFields()
 
+            // Set the result to notify the calling fragment (AllFragment)
+            setResult(RESULT_OK)
+            finish()  // Close the activity and go back to AllFragment
+
         } catch (e: Exception) {
             // Handle any unexpected errors
             Log.e("AppDatabase", "Error saving candidat", e)
