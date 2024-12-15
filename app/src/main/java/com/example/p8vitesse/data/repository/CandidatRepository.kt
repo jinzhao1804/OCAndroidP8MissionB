@@ -26,7 +26,7 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
         candidatDao.insertCandidat(candidat.toDto())
     }
 
-    suspend fun deleteExercise(candidat: Candidat) {
+    suspend fun deleteCandidat(candidat: Candidat) {
         candidat.id?.let {
             candidatDao.deleteCandidatById(
                 id = candidat.id,

@@ -12,6 +12,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContentProviderCompat.requireContext
@@ -139,6 +140,37 @@ class CandidatDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun deleteCandidat(candidat: Candidat) {
+        // Show a confirmation dialog
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Confirm Deletion")
+            .setMessage("Are you sure you want to delete ${candidat.name}?")
+            .setPositiveButton("Yes") { _, _ ->
+                // Proceed with deletion
+                candidatViewModel.deleteCandidat(candidat)
+
+                // Observe for successful deletion and close the activity
+                candidatViewModel.deletionStatus.observe(this) { status ->
+                    if (status) {
+                        Toast.makeText(this, "${candidat.name} deleted successfully", Toast.LENGTH_SHORT).show()
+                        finish() // Close the activity and return to the previous screen
+                        candidatViewModel.fetchAllCandidtas()
+                        //refreshListScreen() // complete this code here
+                    } else {
+                        Toast.makeText(this, "Failed to delete ${candidat.name}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss() // Cancel the operation
+            }
+            .create()
+
+        dialog.show()
+    }
+
+
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -157,6 +189,14 @@ class CandidatDetailActivity : AppCompatActivity() {
                     // Update the favorite icon in the menu
                     updateFavoriteIcon(it.isFav)
                 }
+                true
+            }
+            R.id.action_delete -> {
+                val candidat = candidatViewModel.candidat.value
+                candidat?.let {
+                    deleteCandidat(candidat)
+                }
+
                 true
             }
             else -> super.onOptionsItemSelected(item)

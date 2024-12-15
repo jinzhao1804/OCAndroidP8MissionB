@@ -3,8 +3,12 @@ package com.example.p8vitesse.ui.detail
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.activity.viewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.p8vitesse.domain.model.Candidat
+import com.example.p8vitesse.domain.usecase.DeleteCandidatUseCase
+import com.example.p8vitesse.domain.usecase.GetAllCandidatsUseCase
 import com.example.p8vitesse.domain.usecase.GetCandidatByIdUseCase
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
@@ -21,7 +25,9 @@ import javax.inject.Inject
 class CandidatDetailViewModel @Inject constructor(
     private val getCandidatByIdUseCase: GetCandidatByIdUseCase, // Use case to fetch candidat by ID
     private val setFavorisCandidatUsecase: SetFavorisCandidatUsecase,
-    private val getFavorisCandidatUsecase: GetFavorisCandidatsUseCase
+    private val getFavorisCandidatUsecase: GetFavorisCandidatsUseCase,
+    private val deleteCandidatUseCase: DeleteCandidatUseCase,
+    private val getAllCandidatsUseCase: GetAllCandidatsUseCase
 ) : ViewModel() {
 
     private val _candidat = MutableStateFlow<Candidat?>(null)  // For single Candidat
@@ -30,8 +36,39 @@ class CandidatDetailViewModel @Inject constructor(
     private val _favorisList = MutableStateFlow<List<Candidat>>(emptyList())  // For list of Candidats
     val favorisList: StateFlow<List<Candidat>> get() = _favorisList
 
+    private val _deletionStatus = MutableLiveData<Boolean>()
+    val deletionStatus: LiveData<Boolean> get() = _deletionStatus
+
+    private val _allCandidats = MutableStateFlow<List<Candidat>>(emptyList())
+    val allCandidats: StateFlow<List<Candidat>> get() = _allCandidats
+
     init {
         fetchFavCandidats()  // Initial fetch of the favoris list
+    }
+
+    fun fetchAllCandidtas(){
+        viewModelScope.launch {
+            try {
+                val list = getAllCandidatsUseCase.execute()
+                _allCandidats.value = list // Notify success
+
+            } catch (e: Exception) {
+                Log.e("Error", "Error fetching favoris list", e)
+            }
+        }
+    }
+    fun deleteCandidat(candidat: Candidat){
+        viewModelScope.launch {
+            try {
+                deleteCandidatUseCase.execute(candidat)
+                _deletionStatus.value = true // Notify success
+
+            } catch (e: Exception) {
+                Log.e("Error", "Error fetching favoris list", e)
+                _deletionStatus.value = false // Notify failure
+
+            }
+        }
     }
 
     // Fetch the list of favoris (favorite candidates)
