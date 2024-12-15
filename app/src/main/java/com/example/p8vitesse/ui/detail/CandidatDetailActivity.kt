@@ -209,6 +209,7 @@ class CandidatDetailActivity : AppCompatActivity() {
                     // Optionally, you can pass data to the EditActivity using intent extras
                     intent.putExtra("CANDIDAT_ID", candidat.id)  // Example of passing the Candidat ID
 
+                        Log.e("AppDatabase", "candidat to edit ${candidat.id}")
                     // Start the EditActivity
                     startActivity(intent)
                 }
