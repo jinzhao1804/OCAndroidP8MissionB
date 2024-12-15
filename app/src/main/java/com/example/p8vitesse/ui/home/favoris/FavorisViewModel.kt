@@ -3,6 +3,7 @@ package com.example.p8vitesse.ui.home.favoris
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetAllCandidatsUseCase
@@ -17,10 +18,16 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class FavorisViewModel @Inject constructor(private val getFavCandidatsUseCase: GetFavorisCandidatsUseCase) : ViewModel() {
+class FavorisViewModel @Inject constructor(
+    private val getFavCandidatsUseCase: GetFavorisCandidatsUseCase
+) : ViewModel() {
 
     private val _favCandidats = MutableStateFlow<List<Candidat>>(emptyList())
     val favCandidats: StateFlow<List<Candidat>> = _favCandidats.asStateFlow()
+
+    init {
+        fetchFavCandidats()
+    }
 
     fun fetchFavCandidats() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -38,3 +45,4 @@ class FavorisViewModel @Inject constructor(private val getFavCandidatsUseCase: G
         }
     }
 }
+

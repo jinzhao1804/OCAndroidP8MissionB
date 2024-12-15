@@ -14,11 +14,19 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
+import com.example.p8vitesse.ui.home.all.AllFragment
+import com.example.p8vitesse.ui.home.all.AllListAdapter
+import com.example.p8vitesse.ui.home.all.AllViewModel
+import com.example.p8vitesse.ui.home.favoris.FavorisFragment
 import com.example.p8vitesse.ui.home.favoris.FavorisListAdapter
 import com.example.p8vitesse.ui.home.favoris.FavorisViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,7 +48,6 @@ class CandidatDetailActivity : AppCompatActivity() {
     lateinit var getFavorisCandidatUsecase: GetFavorisCandidatsUseCase
 
     lateinit var favorisListAdapter: FavorisListAdapter
-    private val favorisViewModel: FavorisViewModel by viewModels()
 
     private var favoriteIcon: MenuItem? = null // Change to nullable
 
@@ -49,20 +56,25 @@ class CandidatDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_candidat_detail)
 
-        Log.e("AppDatabase", "Intent data: ${intent.getIntExtra("CANDIDAT_ID", -1)}")
-
         val candidatId = intent.getStringExtra("CANDIDAT_ID")
-        Log.e("AppDatabase", "CandidatId fetched id is : $candidatId")
 
         if (candidatId != null && candidatId.toInt() != -1) {
             fetchAndDisplayCandidatDetails(candidatId.toInt())
         }
 
-       // Initialize the favorisListAdapter
-        favorisListAdapter = FavorisListAdapter(emptyList()) {}
+        favorisListAdapter = FavorisListAdapter(mutableListOf()) { candidat ->
+            // Handle item click here
+            // Example: Log or perform an action when an item is clicked
+            Log.d("FavorisListAdapter", "Clicked on: ${candidat.name}")
+        }
 
-        // Observe favoris list changes
-        observeFavorisList()
+        // Observe the favoris list changes
+        lifecycleScope.launch {
+            candidatViewModel.favorisList.collect { updatedFavorisList ->
+                // This block will be triggered whenever the favoris list is updated
+                refreshFavorisList(updatedFavorisList)
+            }
+        }
 
         candidatId?.let { candidatViewModel.getCandidatById(it.toInt()) }
 
@@ -74,20 +86,8 @@ class CandidatDetailActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            favorisViewModel.favCandidats.collect { updatedFavorisList ->
-                refreshFavorisList(updatedFavorisList)
-            }
-        }
-    }
-
-    private fun observeFavorisList() {
-        lifecycleScope.launch {
-            favorisViewModel.favCandidats.collect { favorisList ->
-                // Update the UI with the new favoris list
-                refreshFavorisList(favorisList)
-            }
-        }
+        // Initialize the favorite button based on the menu
+        favoriteIcon?.isVisible = true  // Ensure the icon is visible when the menu is ready
     }
 
     private fun fetchAndDisplayCandidatDetails(candidatId: Int) {
@@ -101,29 +101,25 @@ class CandidatDetailActivity : AppCompatActivity() {
                     supportActionBar?.title = "${candidat.name} ${candidat.surname.toUpperCase()}"
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-                    // Initialize the favorite button based on the menu
-                    favoriteIcon?.isVisible = true  // Ensure the icon is visible when the menu is ready
+                    // Update favorite icon
                     updateFavoriteIcon(candidat.isFav)
                     setOnClickListeners(candidat)
                     updateSalaries(candidat.desiredSalary)
-                    setNoteContent("Notes",candidat.note)
+                    setNoteContent("Notes", candidat.note)
+                    updateBirthdateAndAnniversary(candidat.birthdate.toString())
                 }
             }
         }
     }
 
     private fun refreshFavorisList(favorisList: List<Candidat>) {
-        Log.d("Favoris", "Updated favoris list: $favorisList")
-        favorisViewModel.fetchFavCandidats()
-        // Update the adapter data with the new favoris list
         favorisListAdapter.updateCandidats(favorisList)
-        // Notify the adapter to refresh the list (if needed)
         favorisListAdapter.notifyDataSetChanged()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_toolbar, menu)
-        favoriteIcon = menu?.findItem(R.id.action_favorite) // Initialize here
+        favoriteIcon = menu?.findItem(R.id.action_favorite)
 
         val candidat = candidatViewModel.candidat.value
         if (candidat != null) {
@@ -152,14 +148,20 @@ class CandidatDetailActivity : AppCompatActivity() {
             R.id.action_favorite -> {
                 val candidat = candidatViewModel.candidat.value
                 candidat?.let {
+                    // Toggle the favorite status using the viewModel
                     candidatViewModel.toggleFavorite(it)
+
+                    // Refresh the favoris list after updating the favorite status
+                    //candidatViewModel.fetchFavCandidats()
+
+                    // Update the favorite icon in the menu
+                    updateFavoriteIcon(it.isFav)
                 }
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
-
 
     private fun setOnClickListeners(candidat: Candidat) {
         findViewById<View>(R.id.icon_call).setOnClickListener { onCallClicked(candidat) }
@@ -172,8 +174,6 @@ class CandidatDetailActivity : AppCompatActivity() {
         if (!phoneNumber.isNullOrEmpty()) {
             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
             startActivity(intent)
-        } else {
-            Log.e("CandidatDetailActivity", "Phone number is not available.")
         }
     }
 
@@ -183,8 +183,6 @@ class CandidatDetailActivity : AppCompatActivity() {
             val smsUri = Uri.parse("smsto:$smsNumber")
             val intent = Intent(Intent.ACTION_SENDTO, smsUri)
             startActivity(intent)
-        } else {
-            Log.e("CandidatDetailActivity", "SMS number is not available.")
         }
     }
 
@@ -193,8 +191,6 @@ class CandidatDetailActivity : AppCompatActivity() {
         if (!email.isNullOrEmpty()) {
             val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
             startActivity(Intent.createChooser(emailIntent, "Send Email"))
-        } else {
-            Log.e("CandidatDetailActivity", "Email is not available.")
         }
     }
 
@@ -270,3 +266,4 @@ class CandidatDetailActivity : AppCompatActivity() {
         textViewNotesContent.text = noteContent
     }
 }
+

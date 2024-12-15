@@ -23,7 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class AllFragment : Fragment(R.layout.fragment_all) {
+class AllFragment : Fragment() {
 
 // Using the constructor to directly set the layout
 
@@ -51,9 +51,7 @@ class AllFragment : Fragment(R.layout.fragment_all) {
             intent.putExtra("CANDIDAT_ID", candidat.id.toString())  // Pass the Candidat's ID
             startActivity(intent)  // Start the detail activity
 
-
-
-            Log.e("AppDatabase", "Candidat id put: ${candidat.id}")
+           Log.e("AppDatabase", "Candidat id put: ${candidat.id}")
 
 
         }

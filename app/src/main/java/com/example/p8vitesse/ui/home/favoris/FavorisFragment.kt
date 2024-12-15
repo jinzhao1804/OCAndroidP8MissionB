@@ -1,17 +1,20 @@
 package com.example.p8vitesse.ui.home.favoris
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.p8vitesse.R
+import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.ui.detail.CandidatDetailActivity
 import com.example.p8vitesse.ui.home.all.AllListAdapter
 import com.example.p8vitesse.ui.home.all.AllViewModel
@@ -20,7 +23,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FavorisFragment : Fragment() {
-    private val viewModel: FavorisViewModel by viewModels()
+    private val favorisViewModel: FavorisViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FavorisListAdapter
 
@@ -30,34 +33,35 @@ class FavorisFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_favoris, container, false)
         recyclerView = view.findViewById(R.id.recyclerView)
 
-
         // Initialize the adapter and set it to the RecyclerView
-        adapter = FavorisListAdapter(emptyList()) { candidat ->
+        adapter = FavorisListAdapter(mutableListOf()) { candidat ->
             // Handle the item click and pass the Candidat ID to the activity
             val intent = Intent(requireContext(), CandidatDetailActivity::class.java)
             intent.putExtra("CANDIDAT_ID", candidat.id.toString())  // Pass the Candidat's ID
             startActivity(intent)  // Start the detail activity
 
             Log.e("AppDatabase", "Candidat id put: ${candidat.id}")
-
         }
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
-
+        // Fetch the favoris list once when the fragment is created
+        favorisViewModel.fetchFavCandidats()
 
         // Observe the candidates list from the ViewModel
-        lifecycleScope.launch {
-            viewModel.favCandidats.collect { candidats ->
-                // Update the RecyclerView adapter with the new list of candidats
+        lifecycleScope.launchWhenStarted  {
+            favorisViewModel.favCandidats.collect { candidats ->
+                // Log the updated list of candidates
                 Log.e("AppDatabase", "Updated candidats: $candidats")
 
-                adapter.updateCandidats(candidats)
-                // Trigger fetching of candidates
-                viewModel.fetchFavCandidats()
+                // Update the RecyclerView adapter with the new list of candidats
+                    // Only update the adapter if the list has changed
+                    adapter.updateCandidats(candidats)
+                    adapter.notifyDataSetChanged() // Trigger the adapter refresh
+                    favorisViewModel.fetchFavCandidats()
+
             }
         }
-
 
         return view
     }
