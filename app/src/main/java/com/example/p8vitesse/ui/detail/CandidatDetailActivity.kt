@@ -24,6 +24,7 @@ import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
+import com.example.p8vitesse.ui.edit.EditActivity
 import com.example.p8vitesse.ui.home.all.AllFragment
 import com.example.p8vitesse.ui.home.all.AllListAdapter
 import com.example.p8vitesse.ui.home.all.AllViewModel
@@ -195,6 +196,21 @@ class CandidatDetailActivity : AppCompatActivity() {
                 val candidat = candidatViewModel.candidat.value
                 candidat?.let {
                     deleteCandidat(candidat)
+                }
+
+                true
+            }
+            R.id.action_edit -> {
+
+                val candidat = candidatViewModel.candidat.value
+                candidat?.let {
+                    val intent = Intent(this, EditActivity::class.java)
+
+                    // Optionally, you can pass data to the EditActivity using intent extras
+                    intent.putExtra("CANDIDAT_ID", candidat.id)  // Example of passing the Candidat ID
+
+                    // Start the EditActivity
+                    startActivity(intent)
                 }
 
                 true

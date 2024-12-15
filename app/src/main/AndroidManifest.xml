@@ -17,6 +17,9 @@
         android:theme="@style/Theme.P8Vitesse"
         tools:targetApi="31">
         <activity
+            android:name=".ui.edit.EditActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.detail.CandidatDetailActivity"
             android:exported="false" />
         <activity

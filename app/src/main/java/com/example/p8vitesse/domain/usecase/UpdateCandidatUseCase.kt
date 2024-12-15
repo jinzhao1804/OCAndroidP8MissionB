@@ -5,17 +5,18 @@ import com.example.p8vitesse.data.repository.CandidatRepository
 import com.example.p8vitesse.domain.model.Candidat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 import javax.inject.Inject
 
 class UpdateCandidatUseCase @Inject constructor(private val candidatRepository: CandidatRepository) {
 
     suspend fun execute(
-        candidatId: Long,
+        candidatId: Long?,
         name: String,
         surname: String,
         phone: String,
         email: String,
-        birthdate: java.util.Date,
+        birthdate: Date,
         desiredSalary: Double,
         note: String,
         isFav: Boolean,
