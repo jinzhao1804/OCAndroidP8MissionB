@@ -323,12 +323,6 @@ class CandidatDetailActivity : AppCompatActivity() {
         textViewNotesContent.text = noteContent
     }
 
-    override fun finish() {
-        val data = Intent()
-        data.putExtra("CHANGED_FAVORIS", true)  // Indicate that a favorite change occurred
-        setResult(RESULT_OK, data)
-        super.finish()
-    }
 
 }
 
