@@ -75,13 +75,16 @@ class CandidatDetailViewModel @Inject constructor(
     fun fetchFavCandidats() {
         viewModelScope.launch {
             try {
-                val list = getFavorisCandidatUsecase.execute()
-                _favorisList.value = list
+                getFavorisCandidatUsecase.execute()
+                    .collect { list ->
+                        _favorisList.value = list // Update the LiveData or StateFlow
+                    }
             } catch (e: Exception) {
                 Log.e("Error", "Error fetching favoris list", e)
             }
         }
     }
+
 
     // Fetch a candidat by ID
     fun getCandidatById(candidatId: Int) {

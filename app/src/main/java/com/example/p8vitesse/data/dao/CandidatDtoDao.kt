@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.example.p8vitesse.data.entity.CandidatDto
 import com.example.p8vitesse.domain.model.Candidat
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
@@ -28,7 +29,7 @@ interface CandidatDtoDao {
     suspend fun deleteAllCandidates()
 
     @Query("SELECT * FROM candidat WHERE isFav = 1")
-    fun getFavoriteCandidats(): List<CandidatDto>
+    fun getFavorisCandidats(): Flow<List<Candidat>>  // Use Flow for reactivity
 
     @Query("UPDATE candidat SET isFav = :isFavorite WHERE id = :candidatId")
     fun setFavoriteCandidat(candidatId: Int, isFavorite: Boolean)

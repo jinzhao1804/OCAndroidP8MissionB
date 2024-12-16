@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.p8vitesse.data.converter.Converter
 import com.example.p8vitesse.data.dao.CandidatDtoDao
 import com.example.p8vitesse.domain.model.Candidat
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 import javax.inject.Inject
 
@@ -35,9 +36,9 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
         }
     }
 
-    suspend fun getFavoriteCandidats(): List<Candidat> {
-        return candidatDao.getFavoriteCandidats()
-            .map { Candidat.fromDto(it) }
+    suspend fun getFavoriteCandidats(): Flow<List<Candidat>> {
+        return candidatDao.getFavorisCandidats()
+
     }
 
     suspend fun getCandidatById(candidatId: Int): Candidat {

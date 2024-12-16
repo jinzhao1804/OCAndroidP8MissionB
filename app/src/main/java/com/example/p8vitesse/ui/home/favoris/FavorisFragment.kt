@@ -27,6 +27,18 @@ class FavorisFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FavorisListAdapter
 
+
+    private val detailActivityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val isUpdated = result.data?.getBooleanExtra("CHANGED_FAVORIS", false) ?: false
+            if (isUpdated) {
+                favorisViewModel.fetchFavCandidats()  // Refresh the data
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -38,7 +50,7 @@ class FavorisFragment : Fragment() {
             // Handle the item click and pass the Candidat ID to the activity
             val intent = Intent(requireContext(), CandidatDetailActivity::class.java)
             intent.putExtra("CANDIDAT_ID", candidat.id.toString())  // Pass the Candidat's ID
-            startActivity(intent)  // Start the detail activity
+            detailActivityResultLauncher.launch(intent)
 
             Log.e("AppDatabase", "Candidat id put: ${candidat.id}")
         }
@@ -49,16 +61,18 @@ class FavorisFragment : Fragment() {
         favorisViewModel.fetchFavCandidats()
 
         // Observe the candidates list from the ViewModel
-        lifecycleScope.launchWhenStarted  {
+        lifecycleScope.launch{
             favorisViewModel.favCandidats.collect { candidats ->
                 // Log the updated list of candidates
-                Log.e("AppDatabase", "Updated candidats: $candidats")
+                Log.e("AppDatabase", "Updated fav candidats: $candidats")
 
                 // Update the RecyclerView adapter with the new list of candidats
                     // Only update the adapter if the list has changed
                     adapter.updateCandidats(candidats)
                     adapter.notifyDataSetChanged() // Trigger the adapter refresh
                     favorisViewModel.fetchFavCandidats()
+                    recyclerView.adapter = adapter  // Force RecyclerView to rebind
+
 
             }
         }
