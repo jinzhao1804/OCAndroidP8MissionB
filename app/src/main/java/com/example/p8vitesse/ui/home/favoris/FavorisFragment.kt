@@ -71,7 +71,7 @@ class FavorisFragment : Fragment() {
                     adapter.updateCandidats(candidats)
                     adapter.notifyDataSetChanged() // Trigger the adapter refresh
                     favorisViewModel.fetchFavCandidats()
-                    recyclerView.adapter = adapter  // Force RecyclerView to rebind
+                    //recyclerView.adapter = adapter  // Force RecyclerView to rebind
 
 
             }
