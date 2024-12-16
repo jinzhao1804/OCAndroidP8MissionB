@@ -88,6 +88,15 @@ class AllFragment : Fragment() {
             }
         }
 
+    // Method to filter candidates based on search query
+    fun filterCandidates(query: String) {
+        val filteredList = viewModel.candidats.value.filter { candidat ->
+            candidat.name.contains(query, ignoreCase = true) ||  // Search in name
+                    candidat.surname.contains(query, ignoreCase = true) ||  // Search in surname
+                    candidat.note.contains(query, ignoreCase = true)  // Search in note
+        }
+        adapter.updateCandidats(filteredList)
+    }
 
 
 
