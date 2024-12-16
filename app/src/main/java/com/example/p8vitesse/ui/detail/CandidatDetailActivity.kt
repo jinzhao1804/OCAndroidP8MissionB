@@ -2,6 +2,8 @@ package com.example.p8vitesse.ui.detail
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -15,30 +17,23 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
 import com.example.p8vitesse.ui.edit.EditActivity
-import com.example.p8vitesse.ui.home.all.AllFragment
-import com.example.p8vitesse.ui.home.all.AllListAdapter
-import com.example.p8vitesse.ui.home.all.AllViewModel
-import com.example.p8vitesse.ui.home.favoris.FavorisFragment
 import com.example.p8vitesse.ui.home.favoris.FavorisListAdapter
-import com.example.p8vitesse.ui.home.favoris.FavorisViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
+import android.util.Base64
+
+
 @AndroidEntryPoint
 class CandidatDetailActivity : AppCompatActivity() {
 
@@ -138,10 +133,36 @@ class CandidatDetailActivity : AppCompatActivity() {
                     updateSalaries(candidat.desiredSalary)
                     setNoteContent("Notes", candidat.note)
                     updateBirthdateAndAnniversary(candidat.birthdate.toString())
+                    setProfileImage(candidat)
                 }
             }
         }
     }
+
+    private fun setProfileImage(candidat: Candidat?) {
+        val profileImageView = findViewById<ImageView>(R.id.profilePicImageView)
+
+        // Check if ImageView is null
+        if (profileImageView == null) {
+            Log.e("CandidatDetailActivity", "ImageView with ID 'profilePicImageView' is null. Please check the layout.")
+            return
+        }
+
+        // Check if the candidate has a profile picture
+        if (candidat?.profilePicture != null) {
+            // Set the image bitmap
+            profileImageView.setImageBitmap(candidat.profilePicture)
+
+            // Ensure the image is scaled correctly to maintain aspect ratio
+            profileImageView.scaleType = ImageView.ScaleType.CENTER_CROP
+        } else {
+            // Set a default image if no profile picture is available
+            profileImageView.setImageResource(R.drawable.ic_add)
+        }
+    }
+
+
+
 
     private fun refreshFavorisList(favorisList: List<Candidat>) {
         favorisListAdapter.updateCandidats(favorisList)

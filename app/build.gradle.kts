@@ -44,6 +44,9 @@ android {
 
 dependencies {
 
+    implementation ("com.github.bumptech.glide:glide:4.12.0")  // Use the latest version
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+
     implementation ("com.google.android.material:material:1.12.0")
 
 

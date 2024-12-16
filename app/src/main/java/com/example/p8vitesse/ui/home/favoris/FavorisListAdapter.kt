@@ -65,6 +65,12 @@ class FavorisListAdapter(
         // Set the profile picture Bitmap to the ImageView
         candidat.profilePicture?.let {
             holder.profilPictureView.setImageBitmap(it)
+            // Scale the image to cover the entire width and height of the ImageView
+            //holder.profilPictureView.scaleType = ImageView.ScaleType.FIT_XY
+            // Alternatively, you can use ScaleType.CENTER_CROP if you want to crop the image to fit
+
+            holder.profilPictureView.scaleType = ImageView.ScaleType.CENTER_CROP
+
         }
 
         // Set up the click listener for each item
