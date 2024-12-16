@@ -35,6 +35,8 @@ class AddCandidatActivity : AppCompatActivity() {
     private val REQUEST_CODE_PICK_IMAGE = 1001
     private lateinit var userProfilePicture: ImageView
     private val viewModel: AddCandidatViewModel by viewModels()
+    private var yourBitmap: Bitmap? = null // Make this nullable to handle the null case
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,6 +110,11 @@ class AddCandidatActivity : AppCompatActivity() {
 
             // Convert URI to Bitmap
             val bitmap = getBitmapFromUri(imageUri)
+
+            if (bitmap != null) {
+                yourBitmap = bitmap
+            }
+
 
             // Set the image to the ImageView
             userProfilePicture.setImageBitmap(bitmap)
@@ -183,23 +190,39 @@ class AddCandidatActivity : AppCompatActivity() {
         try {
             Log.e("AppDatabase", "save function called")
 
-            // Get the EditText views
             val editTextName = findViewById<EditText>(R.id.editTextName)
             val editTextSurname = findViewById<EditText>(R.id.editTextSurname)
             val editTextPhone = findViewById<EditText>(R.id.phoneTextView)
             val editTextEmail = findViewById<EditText>(R.id.emailTextName)
             val editTextSalary = findViewById<EditText>(R.id.salaryTextName)
             val editTextNote = findViewById<EditText>(R.id.noteTextName)
+            val editBirthdate = findViewById<EditText>(R.id.editTextDateOfBirth)
 
-            // Get the text values from the EditText fields
             val name = editTextName.text.toString().trim()
             val surname = editTextSurname.text.toString().trim()
             val phone = editTextPhone.text.toString().trim()
             val email = editTextEmail.text.toString().trim()
             val salary = editTextSalary.text.toString().trim().toDoubleOrNull() ?: 0.0
             val note = editTextNote.text.toString().trim()
+            val birthdate = editBirthdate.text.toString().trim()
+            val profilePicture = yourBitmap
 
-            // Validate input data
+            /*
+            if (profilePicture == null) {
+                Toast.makeText(this, "Please enter a valid picture", Toast.LENGTH_SHORT).show()
+                return
+            }*/
+
+            if (birthdate.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid birthday", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            if (note.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid note", Toast.LENGTH_SHORT).show()
+                return
+            }
+
             if (name.isEmpty()) {
                 Toast.makeText(this, "Please enter a valid name", Toast.LENGTH_SHORT).show()
                 return
@@ -225,42 +248,55 @@ class AddCandidatActivity : AppCompatActivity() {
                 return
             }
 
-            Log.e("AppDatabase", "Data collected: Name=$name, Surname=$surname, Phone=$phone, Email=$email, Salary=$salary, Note=$note")
+            Log.e("AppDatabase", "Data collected: image:$profilePicture, Birthdate=$birthdate, Name=$name, Surname=$surname, Phone=$phone, Email=$email, Salary=$salary, Note=$note")
+            try {
+                // Create the Candidat object with the provided values
+                val candidat = Candidat(
+                    name = name,
+                    surname = surname,
+                    phone = phone,
+                    email = email,
+                    birthdate = Date(),  // Use current date for birthdate, consider parsing if needed
+                    desiredSalary = salary,
+                    note = note,
+                    isFav = false,  // Default value for isFav
+                    profilePicture = profilePicture  // The profile picture Bitmap (could be null)
+                )
 
+                // Call the ViewModel to update the Candidat (you should handle any potential failure here)
+                viewModel.addCandidat(candidat)
 
-            // Create a new Candidat object with the provided values
-            val candidat = Candidat(
-                name = name,
-                surname = surname,
-                phone = phone,
-                email = email,
-                birthdate = Date(),  // You can use a DatePicker to get a date input
-                desiredSalary = salary,
-                note = note,
-                isFav = false, // Assuming isFav is a default value
-                profilePicture = null  // Assuming you might add this later, e.g., from an image picker
-            )
+                Log.e("AppDatabase", "candidat update id is: ${candidat.id}")
+                Toast.makeText(this, "Candidat update is is: ${candidat.id}", Toast.LENGTH_SHORT).show()
 
-            // Save the Candidat using the ViewModel
-            viewModel.addCandidat(candidat)
+                // Show a success message
+                Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
 
-            Log.e("AppDatabase", "Candidat saved successfully")
-            // Show a success message
-            Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
+                // Clear the fields after saving
+                clearFields()
 
-            // Clear the fields after saving
-            clearFields()
+                // Set the result and finish the activity (e.g., to go back to the previous screen)
+                setResult(RESULT_OK)
+                finish()
 
-            // Set the result to notify the calling fragment (AllFragment)
-            setResult(RESULT_OK)
-            finish()  // Close the activity and go back to AllFragment
+            } catch (e: IllegalArgumentException) {
+                // Handle case where any argument is invalid, for example:
+                Log.e("AppDatabase", "Error saving candidat: Invalid argument - ${e.message}")
+                Toast.makeText(this, "Please check the input fields and try again.", Toast.LENGTH_LONG).show()
+
+            } catch (e: Exception) {
+                // Handle any other unexpected errors (network, database, etc.)
+                Log.e("AppDatabase", "Error saving candidat: ${e.message}", e)
+                Toast.makeText(this, "An error occurred while saving the Candidat. Please try again.", Toast.LENGTH_LONG).show()
+            }
+
 
         } catch (e: Exception) {
-            // Handle any unexpected errors
             Log.e("AppDatabase", "Error saving candidat", e)
             Toast.makeText(this, "An error occurred while saving the Candidat. Please try again.", Toast.LENGTH_LONG).show()
         }
     }
+
 
 
 
