@@ -44,8 +44,35 @@ android {
 
 dependencies {
 
+
+
+    implementation ("androidx.hilt:hilt-navigation-fragment:1.2.0") // For ViewModel with navigation
+    implementation ("com.google.dagger:hilt-android:2.50") // Update to the latest version
+    kapt ("com.google.dagger:hilt-compiler:2.50")
+    testImplementation ("com.google.dagger:hilt-android-testing:2.50")
+    kaptTest ("com.google.dagger:hilt-compiler:2.50")
+    androidTestImplementation ("com.google.dagger:hilt-android-testing:2.50")
+    kaptAndroidTest ("com.google.dagger:hilt-compiler:2.50")
+
+
+    testImplementation ("androidx.arch.core:core-testing:2.2.0")
+    // JUnit
+    testImplementation ("junit:junit:4.13.2")
+    // Mocking framework
+    testImplementation ("io.mockk:mockk:1.13.3")
+    // Hilt testing
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7") // For regular ViewModel support
+    // Turbine for Flow testing
+    testImplementation ("app.cash.turbine:turbine:0.12.0")
+    // Coroutine test
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+    // Hilt Test Rule
+
+
     implementation ("com.github.bumptech.glide:glide:4.12.0")  // Use the latest version
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+    kapt ("com.github.bumptech.glide:compiler:4.12.0")
+
 
     implementation ("com.google.android.material:material:1.12.0")
 

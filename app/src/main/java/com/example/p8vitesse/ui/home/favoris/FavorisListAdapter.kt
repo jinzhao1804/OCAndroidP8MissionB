@@ -1,5 +1,6 @@
 package com.example.p8vitesse.ui.home.favoris
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,13 +26,6 @@ class FavorisListAdapter(
         diffResult.dispatchUpdatesTo(this)
     }
 
-    // Update a single item in the list
-    fun updateItem(position: Int, updatedItem: Candidat) {
-        if (position in candidats.indices) {
-            candidats[position] = updatedItem
-            notifyItemChanged(position)
-        }
-    }
 
     class CandidatesDiffCallback(
         private val oldList: List<Candidat>,
@@ -72,9 +66,12 @@ class FavorisListAdapter(
             holder.profilPictureView.scaleType = ImageView.ScaleType.CENTER_CROP
 
         }
+        // Log the click event
+        Log.e("FavorisListAdapter", "Binding item at position: $position")
 
         // Set up the click listener for each item
         holder.itemView.setOnClickListener {
+            Log.e("FavorisListAdapter", "Item clicked at position: $position")
             onItemClick(candidat)  // Trigger the click callback with the selected candidat
         }
     }

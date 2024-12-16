@@ -45,9 +45,6 @@ class FavorisFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
-        // Fetch the favoris list once when the fragment is created
-        favorisViewModel.fetchFavCandidats()
-
         // Observe the candidates list from the ViewModel
         lifecycleScope.launch{
             favorisViewModel.favCandidats.collect { candidats ->
@@ -58,8 +55,7 @@ class FavorisFragment : Fragment() {
                     // Only update the adapter if the list has changed
                     adapter.updateCandidats(candidats)
                     adapter.notifyDataSetChanged() // Trigger the adapter refresh
-                    favorisViewModel.fetchFavCandidats()
-                    //recyclerView.adapter = adapter  // Force RecyclerView to rebind
+
 
 
             }

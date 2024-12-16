@@ -40,20 +40,6 @@ class FavorisViewModel @Inject constructor(
                     _favCandidats.value = favCandidats
                 }
             }
-        /*
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Fetch candidates using the use case
-                val favCandidatsList = getFavCandidatsUseCase.execute()
-                // Log to see if we are receiving the correct data
-                Log.e("AppDatabase", "Fetched fav candidates: $favCandidatsList")
-                // Update the state flow with the fetched candidates
-                _favCandidats.value = favCandidatsList
-            } catch (e: Exception) {
-                Log.e("AppDatabase", "Error fetching candidates", e)
-                _favCandidats.value = emptyList() // Handle error
-            }
-        }*/
     }
 }
 

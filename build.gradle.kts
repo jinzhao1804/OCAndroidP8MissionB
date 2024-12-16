@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.4.2")  // Use the correct version for your project
+        classpath("com.android.tools.build:gradle:8.5.1")  // Use the correct version for your project
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20")  // Use the correct Kotlin version
 
         // Hilt Plugin

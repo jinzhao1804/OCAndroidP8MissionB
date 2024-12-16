@@ -18,7 +18,7 @@ import javax.inject.Inject
 class AllViewModel @Inject constructor(private val getAllCandidatsUseCase: GetAllCandidatsUseCase) : ViewModel() {
 
     private val _candidats = MutableStateFlow<List<Candidat>>(emptyList())
-    val candidats: StateFlow<List<Candidat>> = _candidats.asStateFlow()
+    val candidats: StateFlow<List<Candidat>> get() = _candidats
 
     fun fetchCandidats() {
         viewModelScope.launch(Dispatchers.IO) {
