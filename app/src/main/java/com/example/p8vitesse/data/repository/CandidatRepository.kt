@@ -6,22 +6,26 @@ import com.example.p8vitesse.data.converter.Converter
 import com.example.p8vitesse.data.dao.CandidatDtoDao
 import com.example.p8vitesse.domain.model.Candidat
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.Date
 import javax.inject.Inject
 
 class CandidatRepository @Inject constructor(private val candidatDao: CandidatDtoDao) {
 
 
-    suspend fun getAllCandidats(): List<Candidat> {
-
-        var allCandidat = candidatDao.getAllCandidats()
-            .map { Candidat.fromDto(it) } // Convert every DTO to Candidat
-
-        return allCandidat
+    suspend fun getAllCandidats(): Flow<List<Candidat>> {
+        // This is a Flow of DTOs being transformed
+        val allCandidat = candidatDao.getAllCandidats()
+            .map { candidatesDto ->
+                candidatesDto.map { Candidat.fromDto(it) } // Convert each DTO to Candidat
+            }
 
         Log.e("AllViewModel", "All candidates: $allCandidat")
 
+        // Return the Flow after transformation
+        return allCandidat
     }
+
 
 
     suspend fun addCandidat(candidat: Candidat) {

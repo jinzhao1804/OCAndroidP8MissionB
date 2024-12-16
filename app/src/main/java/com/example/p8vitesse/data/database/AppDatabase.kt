@@ -117,7 +117,7 @@ abstract class AppDatabase : RoomDatabase() {
 
                 // Log after inserting
                 val allCandidats = candidatDtoDao.getAllCandidats()
-                Log.e("AppDatabase", "Number of candidates inserted: ${allCandidats.size}")
+                Log.e("AppDatabase", "Number of candidates inserted: ${allCandidats}")
 
             } catch (e: Exception) {
                 Log.e("AppDatabase", "Error inserting candidates", e)

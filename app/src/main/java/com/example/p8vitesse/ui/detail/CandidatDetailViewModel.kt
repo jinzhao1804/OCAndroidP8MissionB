@@ -46,17 +46,19 @@ class CandidatDetailViewModel @Inject constructor(
         fetchFavCandidats()  // Initial fetch of the favoris list
     }
 
-    fun fetchAllCandidtas(){
+    fun fetchAllCandidtas() {
         viewModelScope.launch {
             try {
-                val list = getAllCandidatsUseCase.execute()
-                _allCandidats.value = list // Notify success
-
+                getAllCandidatsUseCase.execute()
+                    .collect { list ->
+                        _allCandidats.value = list // Update the StateFlow with the collected list
+                    }
             } catch (e: Exception) {
-                Log.e("Error", "Error fetching favoris list", e)
+                Log.e("Error", "Error fetching candidats list", e)
             }
         }
     }
+
     fun deleteCandidat(candidat: Candidat){
         viewModelScope.launch {
             try {

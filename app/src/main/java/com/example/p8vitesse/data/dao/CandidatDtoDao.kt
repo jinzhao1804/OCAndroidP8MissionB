@@ -16,7 +16,7 @@ interface CandidatDtoDao {
 
 
     @Query("SELECT * FROM candidat")
-    fun getAllCandidats(): List<CandidatDto>
+    fun getAllCandidats(): Flow<List<CandidatDto>>
 
     @Query("SELECT * FROM candidat WHERE id = :candidatId")
     fun getCandidatById(candidatId: Int): Candidat
