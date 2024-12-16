@@ -43,6 +43,8 @@ class AllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         // Initialize the adapter with a click listener
         // Initialize the adapter with a click listener
         adapter = AllListAdapter(emptyList()) { candidat ->
@@ -57,13 +59,29 @@ class AllFragment : Fragment() {
         }
 
 
+
+
         // Set the RecyclerView's layout manager and adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
 
+        // Show the loading indicator before fetching data
+        showLoading(true)
+
+
+        // Observe the candidates list from the ViewModel
         // Observe the candidates list from the ViewModel
         lifecycleScope.launch {
             viewModel.candidats.collect { candidats ->
+                showLoading(false)
+                if (candidats.isEmpty()) {
+                    showLoading(true)
+                    binding.noCandidateText.visibility = View.VISIBLE  // Show the "No candidate" message
+                    binding.recyclerView.visibility = View.GONE  // Hide the RecyclerView
+                } else {
+                    binding.noCandidateText.visibility = View.GONE  // Hide the "No candidate" message
+                    binding.recyclerView.visibility = View.VISIBLE  // Show the RecyclerView
+                }
                 adapter.updateCandidats(candidats)  // Update the adapter with the latest list
             }
         }
@@ -78,6 +96,16 @@ class AllFragment : Fragment() {
         }
     }
 
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.progressBar.visibility = View.VISIBLE  // Show the loading screen
+            binding.recyclerView.visibility = View.GONE  // Hide the RecyclerView
+            Log.e("AppDatabase","is showLoading called: $isLoading")
+        } else {
+            binding.progressBar.visibility = View.GONE  // Hide the loading screen
+            binding.recyclerView.visibility = View.VISIBLE  // Show the RecyclerView
+        }
+    }
 
 
     private val addCandidatLauncher =
