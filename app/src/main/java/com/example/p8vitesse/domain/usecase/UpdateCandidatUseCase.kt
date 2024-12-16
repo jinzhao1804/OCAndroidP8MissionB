@@ -1,6 +1,7 @@
 package com.example.p8vitesse.domain.usecase
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.example.p8vitesse.data.repository.CandidatRepository
 import com.example.p8vitesse.domain.model.Candidat
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,7 @@ class UpdateCandidatUseCase @Inject constructor(private val candidatRepository: 
             try {
                 // Update the candidat in the repository
                 candidatRepository.updateCandidat(candidat)
+                Log.e("AppDatabase","update use case success")
             } catch (e: Exception) {
                 throw Exception("Error updating candidat: ${e.message}", e)
             }

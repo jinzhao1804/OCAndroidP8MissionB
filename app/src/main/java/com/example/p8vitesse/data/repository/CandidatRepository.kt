@@ -53,25 +53,21 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
         candidatDao.setFavoriteCandidat(candidatId, isFavorite)  // Make sure to implement this method in your DAO
     }
 
-    suspend fun updateCandidat(
-        candidat: Candidat
-    ) {
-        candidat.id?.let { id ->
-            // Convert the Bitmap to String here before passing it to DAO
-            val profilePictureString = Converter().fromBitmap(candidat.profilePicture)
-            candidatDao.updateCandidat(
-                id = id,
-                name = candidat.name,
-                surname = candidat.surname,
-                phone = candidat.phone,
-                email = candidat.email,
-                birthdate = candidat.birthdate,
-                desiredSalary = candidat.desiredSalary,
-                note = candidat.note,
-                isFav = candidat.isFav,
-                profilePicture = profilePictureString.toString() // Pass the converted String
-            )
-        }
+    suspend fun updateCandidat(candidat: Candidat) {
+        // Convert Bitmap to String before passing it to DAO
+        val profilePictureString = Converter().fromBitmap(candidat.profilePicture)
+        candidatDao.updateCandidat(
+            id = candidat.id,
+            name = candidat.name,
+            surname = candidat.surname,
+            phone = candidat.phone,
+            email = candidat.email,
+            birthdate = candidat.birthdate,
+            desiredSalary = candidat.desiredSalary,
+            note = candidat.note,
+            isFav = candidat.isFav,
+            profilePicture = profilePictureString.toString() // Pass the converted string
+        )
     }
 
 }

@@ -34,7 +34,7 @@ class EditActivity : AppCompatActivity() {
     private val REQUEST_CODE_PICK_IMAGE = 1001
     private lateinit var userProfilePicture: ImageView
     private val viewModel: EditViewModel by viewModels()
-
+    private var candidatId: Long? = null  // Nullable type for candidatId
     private var yourBitmap: Bitmap? = null // Make this nullable to handle the null case
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,12 +48,12 @@ class EditActivity : AppCompatActivity() {
         val saveFloatingActionButton = findViewById<ExtendedFloatingActionButton>(R.id.fabSave)
 
         // Retrieve the Candidat ID from the Intent
-        val candidatId = intent.getLongExtra("CANDIDAT_ID", -1)
+        candidatId = intent.getLongExtra("CANDIDAT_ID", -1)
 
         Log.e("AppDatabase", "id in edit : $candidatId")
 
         if (candidatId != -1L) {
-            viewModel.getCandidatById(candidatId.toInt())  // Fetch Candidat by ID
+            viewModel.getCandidatById(candidatId!!.toInt())  // Fetch Candidat by ID
 
             // Observe the LiveData to get the fetched Candidat
             viewModel.candidat.observe(this, Observer { candidat ->
@@ -205,6 +205,22 @@ class EditActivity : AppCompatActivity() {
             val birthdate = editBirthdate.text.toString().trim()
             val profilePicture = yourBitmap
 
+            /*
+            if (profilePicture == null) {
+                Toast.makeText(this, "Please enter a valid picture", Toast.LENGTH_SHORT).show()
+                return
+            }*/
+
+            if (birthdate.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid birthday", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            if (note.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid note", Toast.LENGTH_SHORT).show()
+                return
+            }
+
             if (name.isEmpty()) {
                 Toast.makeText(this, "Please enter a valid name", Toast.LENGTH_SHORT).show()
                 return
@@ -234,6 +250,7 @@ class EditActivity : AppCompatActivity() {
             try {
                 // Create the Candidat object with the provided values
                 val candidat = Candidat(
+                    id = candidatId,
                     name = name,
                     surname = surname,
                     phone = phone,
@@ -247,6 +264,9 @@ class EditActivity : AppCompatActivity() {
 
                 // Call the ViewModel to update the Candidat (you should handle any potential failure here)
                 viewModel.updateCandidat(candidat)
+
+                Log.e("AppDatabase", "candidat update id is: ${candidat.id}")
+                Toast.makeText(this, "Candidat update is is: ${candidat.id}", Toast.LENGTH_SHORT).show()
 
                 // Show a success message
                 Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
