@@ -41,7 +41,7 @@ class EditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_candidat)  // Replace with your correct layout name
+        setContentView(R.layout.activity_edit)  // Replace with your correct layout name
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         val editText = findViewById<EditText>(R.id.editTextDateOfBirth)

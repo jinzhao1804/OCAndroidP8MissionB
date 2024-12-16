@@ -28,7 +28,7 @@ class AddCandidatViewModel @Inject constructor(
             try {
                 // Add the new candidat using the AddCandidatUseCase
                 addCandidatUseCase.execute(candidat)
-                _candidats.value = _candidats.value + candidat
+                //_candidats.value = _candidats.value + candidat
 
                 Log.e("AppDatabase", "Candidat added successfully")
             } catch (e: Exception) {
