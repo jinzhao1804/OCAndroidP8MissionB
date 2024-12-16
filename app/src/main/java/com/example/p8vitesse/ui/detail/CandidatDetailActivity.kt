@@ -52,6 +52,35 @@ class CandidatDetailActivity : AppCompatActivity() {
     lateinit var favorisListAdapter: FavorisListAdapter
 
     private var favoriteIcon: MenuItem? = null // Change to nullable
+    private val REQUEST_CODE_EDIT = 1001  // Define a unique request code for EditActivity
+
+    lateinit var candidatId: String
+
+
+    // Handle result from EditActivity when it finishes
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_EDIT && resultCode == RESULT_OK) {
+            // If result is OK (data was updated in EditActivity), refresh the data
+            refreshData()
+        }
+    }
+
+    // Function to refresh or reload the data in the fragment
+    private fun refreshData() {
+        // Your logic to refresh data, e.g., making a network call or reloading from the database
+        Log.e("AppDatabase", "Data refreshed")
+        candidatViewModel.getCandidatById(candidatId.toInt())
+
+        lifecycleScope.launch {
+            candidatViewModel.candidat.collect { updatedCandidat ->
+                updatedCandidat?.let {
+                    it.id?.let { id -> fetchAndDisplayCandidatDetails(id.toInt()) }
+                }
+            }
+        }
+    }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {

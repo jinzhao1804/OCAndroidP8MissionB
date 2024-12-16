@@ -19,11 +19,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -52,15 +54,19 @@ class EditActivity : AppCompatActivity() {
 
         Log.e("AppDatabase", "id in edit : $candidatId")
 
+        // Inside your Activity or Fragment
         if (candidatId != -1L) {
-            viewModel.getCandidatById(candidatId!!.toInt())  // Fetch Candidat by ID
+            // Fetch Candidat by ID
+            viewModel.getCandidatById(candidatId!!.toInt())
 
-            // Observe the LiveData to get the fetched Candidat
-            viewModel.candidat.observe(this, Observer { candidat ->
-                candidat?.let {
-                    setPrefilledDate(it)  // Set the values in the UI
+            // Collect the flow from the ViewModel
+            lifecycleScope.launch{
+                viewModel.candidat.collect { candidat ->
+                    candidat?.let {
+                        setPrefilledData(it)  // Set the values in the UI
+                    }
                 }
-            })
+            }
         }
 
         // Set the toolbar as the app's action bar
@@ -166,7 +172,7 @@ class EditActivity : AppCompatActivity() {
         }
     }
 
-    fun setPrefilledDate(candidat: Candidat) {
+    fun setPrefilledData(candidat: Candidat) {
         val editTextName = findViewById<EditText>(R.id.editTextName)
         val editTextSurname = findViewById<EditText>(R.id.editTextSurname)
         val editTextPhone = findViewById<EditText>(R.id.phoneTextView)

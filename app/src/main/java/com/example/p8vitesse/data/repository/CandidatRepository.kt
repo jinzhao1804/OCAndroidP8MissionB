@@ -45,7 +45,7 @@ class CandidatRepository @Inject constructor(private val candidatDao: CandidatDt
 
     }
 
-    suspend fun getCandidatById(candidatId: Int): Candidat {
+    suspend fun getCandidatById(candidatId: Int): Flow<Candidat> {
         return candidatDao.getCandidatById(candidatId)
     }
 

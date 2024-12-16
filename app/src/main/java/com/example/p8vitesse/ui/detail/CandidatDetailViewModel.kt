@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -88,17 +89,20 @@ class CandidatDetailViewModel @Inject constructor(
     }
 
 
-    // Fetch a candidat by ID
     fun getCandidatById(candidatId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val fetchedCandidat = getCandidatByIdUseCase.execute(candidatId)
-                _candidat.value = fetchedCandidat  // Correctly assign a single Candidat
+                // Collect the Flow emitted by the use case
+                getCandidatByIdUseCase.execute(candidatId)?.collect { fetchedCandidat ->
+                    // Assign the fetched Candidat to the StateFlow
+                    _candidat.value = fetchedCandidat
+                }
             } catch (e: Exception) {
                 Log.e("Error", "Error fetching candidat by id", e)
             }
         }
     }
+
 
     // Toggle the favorite status and refresh the list and screen
     fun toggleFavorite(candidat: Candidat) {

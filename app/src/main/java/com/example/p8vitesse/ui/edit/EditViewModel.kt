@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -27,20 +28,25 @@ class EditViewModel @Inject constructor(
     private val _updatedCandidat = MutableStateFlow<Candidat?>(null)  // Holds the updated Candidat
     val updatedCandidat: StateFlow<Candidat?> = _updatedCandidat.asStateFlow()  // Expose it as immutable
 
-    private val _candidat = MutableLiveData<Candidat?>()
-    val candidat: LiveData<Candidat?> = _candidat
+    // MutableStateFlow for the current Candidat data
+    private val _candidat = MutableStateFlow<Candidat?>(null)
+    val candidat: StateFlow<Candidat?> = _candidat
 
 
     fun getCandidatById(candidatId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val candidat = getCandidatByIdUseCase.execute(candidatId)  // Fetch the Candidat from the repository
-
-            // Update LiveData on the main thread
-            withContext(Dispatchers.Main) {
-                _candidat.value = candidat  // Use setValue() here since we're on the main thread
+            try {
+                // Collect the Flow emitted by the use case
+                getCandidatByIdUseCase.execute(candidatId)?.collect { fetchedCandidat ->
+                    // Directly update the _candidat value on the same thread (since this is in viewModelScope)
+                    _candidat.value = fetchedCandidat
+                }
+            } catch (e: Exception) {
+                Log.e("Error", "Error fetching candidat by id", e)
             }
         }
     }
+
 
     // Function to update a candidat
     fun updateCandidat(candidat: Candidat) {

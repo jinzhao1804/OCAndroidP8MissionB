@@ -2,12 +2,13 @@ package com.example.p8vitesse.domain.usecase
 
 import com.example.p8vitesse.data.repository.CandidatRepository
 import com.example.p8vitesse.domain.model.Candidat
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetCandidatByIdUseCase @Inject constructor(private val candidatRepository: CandidatRepository) {
 
     // Execute the use case to get a Candidat by ID
-    suspend fun execute(candidatId: Int): Candidat? {
+    suspend fun execute(candidatId: Int): Flow<Candidat>? {
         return try {
             // Return the Candidat retrieved from the repository
             candidatRepository.getCandidatById(candidatId)

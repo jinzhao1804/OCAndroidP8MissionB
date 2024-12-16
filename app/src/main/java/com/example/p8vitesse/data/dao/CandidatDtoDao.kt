@@ -19,7 +19,7 @@ interface CandidatDtoDao {
     fun getAllCandidats(): Flow<List<CandidatDto>>
 
     @Query("SELECT * FROM candidat WHERE id = :candidatId")
-    fun getCandidatById(candidatId: Int): Candidat
+    fun getCandidatById(candidatId: Int): Flow<Candidat>
 
 
     @Query("DELETE FROM candidat WHERE id = :id")
