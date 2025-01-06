@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 import java.util.Date
 import javax.inject.Inject
 
-class CandidatRepository @Inject constructor(private val candidatDao: CandidatDtoDao) {
+open class CandidatRepository @Inject constructor(private val candidatDao: CandidatDtoDao) {
 
 
     suspend fun getAllCandidats(): Flow<List<Candidat>> {

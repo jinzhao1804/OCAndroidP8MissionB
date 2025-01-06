@@ -47,6 +47,10 @@ android {
 dependencies {
 
 
+    testImplementation ("junit:junit:4.13.2")
+    testImplementation ("org.mockito:mockito-core:4.2.0")
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
     implementation ("androidx.hilt:hilt-navigation-fragment:1.2.0") // For ViewModel with navigation
     implementation ("com.google.dagger:hilt-android:2.50") // Update to the latest version
