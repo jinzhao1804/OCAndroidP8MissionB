@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -53,11 +54,9 @@ class AllViewModelTest {
     }
 
     @Test
-    fun `test fetchCandidats success`() = runTest {
+    fun `test fetchCandidats success`() = runBlocking {
         // Arrange: Mock the use case to return a list of candidates
-        val dateString = "Mon Dec 16 12:43:49 GMT+01:00 2024"
-        val formatter = SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
-        val parsedDate = formatter.parse(dateString) // Parse the date string into a Date object
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         val mockCandidats = listOf(
             Candidat(
@@ -66,7 +65,7 @@ class AllViewModelTest {
                 surname = "Poudadada",
                 phone = "78",
                 email = "a@a.com",
-                birthdate = parsedDate,
+                birthdate = dateFormat.parse("1990-01-01"),
                 desiredSalary = 111.4,
                 note = "something here",
                 isFav = false,
@@ -78,7 +77,7 @@ class AllViewModelTest {
                 surname = "Jane",
                 phone = "78",
                 email = "s@s.c",
-                birthdate = parsedDate,
+                birthdate = dateFormat.parse("1990-01-01"),
                 desiredSalary = 234.4,
                 note = "something",
                 isFav = false,
@@ -97,7 +96,7 @@ class AllViewModelTest {
             viewModel.candidats.toList(actualCandidats) // Collect emitted values into a list
         }
 
-        advanceUntilIdle() // Ensure all coroutines complete
+        //advanceUntilIdle() // Ensure all coroutines complete
 
         // Verify the collected value matches the expected mock data
         assertEquals(mockCandidats, actualCandidats.last())
@@ -112,7 +111,7 @@ class AllViewModelTest {
 
 
     @Test
-    fun `test fetchCandidats error`() = runTest {
+    fun `test fetchCandidats error`() = runBlocking {
         // Arrange: Mock the use case to throw an exception
         coEvery { getAllCandidatsUseCase.execute() } throws Exception("Error fetching candidates")
 
@@ -120,8 +119,8 @@ class AllViewModelTest {
         viewModel.fetchCandidats()
 
         // Assert: Check that the state flow is empty (since there was an error)
-        viewModel.candidats.collect { candidatsList ->
-            assertTrue(candidatsList.isEmpty())
+        viewModel.candidats.collect {
+            assertTrue(it.isEmpty()) // Ensure the list is empty in case of an error
         }
 
         // Verify that the use case was called
