@@ -43,6 +43,8 @@ class AddCandidatUseCaseTest {
         )
 
         // Mock the repository behavior
+        // coEvery : C'est une fonction de MockK utilisée pour définir le
+        // comportement d'une fonction suspend (coroutine) lors d'un test.
         coEvery { candidatRepository.addCandidat(candidat) } returns Unit
 
         // Act
@@ -74,6 +76,10 @@ class AddCandidatUseCaseTest {
         coEvery { candidatRepository.addCandidat(candidat) } throws exception
 
         // Act (the test will pass if this throws an Exception)
+        // runBlocking démarre un contexte de coroutine.
+        //La méthode execute(candidat) est appelée à l'intérieur de ce contexte.
+        //Le thread actuel est bloqué jusqu'à ce que execute(candidat) termine son exécution.
+        //Une fois terminé, le contexte de coroutine est fermé et le programme continue.
         runBlocking {
             addCandidatUseCase.execute(candidat)
         }
