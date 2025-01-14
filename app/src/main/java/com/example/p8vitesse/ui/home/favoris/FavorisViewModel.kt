@@ -22,7 +22,7 @@ class FavorisViewModel @Inject constructor(
     private val getFavCandidatsUseCase: GetFavorisCandidatsUseCase
 ) : ViewModel() {
 
-    private val _favCandidats = MutableStateFlow<List<Candidat>>(emptyList())
+    val _favCandidats = MutableStateFlow<List<Candidat>>(emptyList())
     val favCandidats: StateFlow<List<Candidat>> = _favCandidats.asStateFlow()
 
     init {

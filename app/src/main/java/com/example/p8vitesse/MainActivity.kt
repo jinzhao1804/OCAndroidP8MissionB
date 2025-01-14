@@ -9,6 +9,7 @@ import androidx.core.widget.addTextChangedListener
 import com.example.p8vitesse.data.database.AppDatabase
 import com.example.p8vitesse.ui.home.ViewPagerAdapter
 import com.example.p8vitesse.ui.home.all.AllFragment
+import com.example.p8vitesse.ui.home.favoris.FavorisFragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,10 +44,15 @@ class MainActivity : AppCompatActivity() {
         // Listen for text changes in the search EditText
         searchView.addTextChangedListener { text ->
             val query = text.toString()
-            // Pass the query to the AllFragment
+            // Pass the query to the current fragment
             val fragment = supportFragmentManager.findFragmentByTag("f${viewPager.currentItem}")
-            if (fragment is AllFragment) {
-                fragment.filterCandidates(query)  // Update the fragment with the filtered query
+            when (fragment) {
+                is AllFragment -> {
+                    fragment.filterCandidates(query)  // Update AllFragment with the filtered query
+                }
+                is FavorisFragment -> {
+                    fragment.filterFavCandidates(query)  // Update FavorisFragment with the filtered query
+                }
             }
         }
 
@@ -57,9 +63,13 @@ class MainActivity : AppCompatActivity() {
 
             // Find the currently displayed fragment based on ViewPager's current item
             val fragment = supportFragmentManager.findFragmentByTag("f${viewPager.currentItem}")
-            if (fragment is AllFragment) {
-                // Pass the query to the AllFragment to filter the candidates
-                fragment.filterCandidates(query)
+            when (fragment) {
+                is AllFragment -> {
+                    fragment.filterCandidates(query)  // Update AllFragment with the filtered query
+                }
+                is FavorisFragment -> {
+                    fragment.filterFavCandidates(query)  // Update FavorisFragment with the filtered query
+                }
             }
         }
 

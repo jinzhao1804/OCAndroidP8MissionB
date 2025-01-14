@@ -128,6 +128,7 @@ class AllFragment : Fragment() {
 
 
 
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null  // Avoid memory leaks by setting the binding to null
