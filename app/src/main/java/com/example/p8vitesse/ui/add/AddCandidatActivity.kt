@@ -129,7 +129,8 @@ class AddCandidatActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                //onBackPressed()
+                finish()
                 true
             }
             else -> super.onOptionsItemSelected(item)
