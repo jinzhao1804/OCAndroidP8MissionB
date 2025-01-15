@@ -70,7 +70,6 @@ class AllFragment : Fragment() {
 
 
         // Observe the candidates list from the ViewModel
-        // Observe the candidates list from the ViewModel
         lifecycleScope.launch {
             viewModel.candidats.collect { candidats ->
                 showLoading(false)
