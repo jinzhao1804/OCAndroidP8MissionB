@@ -20,8 +20,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.example.p8vitesse.MainActivity
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
+import com.example.p8vitesse.ui.detail.CandidatDetailActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
@@ -146,11 +148,28 @@ class EditActivity : AppCompatActivity() {
         }
     }
 
+
+    override fun onBackPressed() {
+
+        super.onBackPressed()
+        // Navigate back to the MainActivity and clear the back stack
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+        finish()  // Close the current activity
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
                 //onBackPressed()
-                finish()
+                // Navigate back to the home activity and clear the back stack
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+                startActivity(intent)
+                finish()  // Close the current activity
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -282,16 +301,23 @@ class EditActivity : AppCompatActivity() {
                 viewModel.updateCandidat(candidat)
 
                 Log.e("AppDatabase", "candidat update id is: ${candidat.id}")
-                Toast.makeText(this, "Candidat update is is: ${candidat.id}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Candidat update is is: ${candidat.id}", Toast.LENGTH_SHORT).show()
 
                 // Show a success message
-                Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
 
                 // Clear the fields after saving
                 clearFields()
 
                 // Set the result and finish the activity (e.g., to go back to the previous screen)
                 setResult(RESULT_OK)
+
+// Navigate to DetailActivity and clear the back stack
+                val intent = Intent(this, CandidatDetailActivity::class.java).apply {
+                    putExtra("CANDIDAT_ID", candidat.id) // Pass the candidate ID to DetailActivity
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+                startActivity(intent)
                 finish()
 
             } catch (e: IllegalArgumentException) {
