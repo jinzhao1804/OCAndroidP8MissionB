@@ -195,6 +195,10 @@ class AddCandidatActivity : AppCompatActivity() {
                     Toast.makeText(this@AddCandidatActivity, "Please enter a phone number", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
+                if (note.isEmpty()) {
+                    Toast.makeText(this@AddCandidatActivity, "Please enter a note", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
 
                 if (salary <= 0.0) {
                     Toast.makeText(this@AddCandidatActivity, "Please enter a valid salary", Toast.LENGTH_SHORT).show()
