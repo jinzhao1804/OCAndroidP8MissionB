@@ -38,6 +38,8 @@ class EditActivity : AppCompatActivity() {
     private val viewModel: EditViewModel by viewModels()
     private var candidatId: Long? = null  // Nullable type for candidatId
     private var yourBitmap: Bitmap? = null // Make this nullable to handle the null case
+    private var isFav: Boolean = false  // Add this variable to store the isFav value
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -188,6 +190,9 @@ class EditActivity : AppCompatActivity() {
         editTextSalary.setText(candidat.desiredSalary.toString())
         editTextNote.setText(candidat.note)
         editTextDateOfBirth.setText(candidat.birthdate.toString())
+
+        isFav = candidat.isFav
+
     }
 
     fun saveCandidat() {
@@ -210,6 +215,10 @@ class EditActivity : AppCompatActivity() {
             val note = editTextNote.text.toString().trim()
             val birthdate = editBirthdate.text.toString().trim()
             val profilePicture = yourBitmap
+
+            // Fetch the existing Candidat to retain the existing profile picture if no new image is selected
+            val existingCandidat = viewModel.candidat.value
+            val finalProfilePicture = profilePicture ?: existingCandidat?.profilePicture
 
             /*
             if (profilePicture == null) {
@@ -264,8 +273,8 @@ class EditActivity : AppCompatActivity() {
                     birthdate = Date(),  // Use current date for birthdate, consider parsing if needed
                     desiredSalary = salary,
                     note = note,
-                    isFav = false,  // Default value for isFav
-                    profilePicture = profilePicture  // The profile picture Bitmap (could be null)
+                    isFav = isFav,  // Default value for isFav
+                    profilePicture = finalProfilePicture  // The profile picture Bitmap (could be null)
                 )
 
                 // Call the ViewModel to update the Candidat (you should handle any potential failure here)

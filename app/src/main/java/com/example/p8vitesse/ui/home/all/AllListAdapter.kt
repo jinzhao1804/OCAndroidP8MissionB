@@ -57,8 +57,11 @@ class AllListAdapter(private var candidats: List<Candidat>, private val onItemCl
         holder.noteTextView.text = candidat.note
 
         // Set the profile picture Bitmap to the ImageView
-        candidat.profilePicture?.let {
-            holder.profilPictureView.setImageBitmap(it)
+        if (candidat.profilePicture != null) {
+            holder.profilPictureView.setImageBitmap(candidat.profilePicture)
+        } else {
+            // Reset the ImageView if there is no profile picture
+            holder.profilPictureView.setImageResource(R.drawable.ic_add) // Use a default placeholder image
         }
 
         // Set up the click listener for each item
@@ -66,7 +69,6 @@ class AllListAdapter(private var candidats: List<Candidat>, private val onItemCl
             onItemClick(candidat)  // Trigger the click callback with the selected candidat
         }
     }
-
     override fun getItemCount(): Int {
         return candidats.size
     }
