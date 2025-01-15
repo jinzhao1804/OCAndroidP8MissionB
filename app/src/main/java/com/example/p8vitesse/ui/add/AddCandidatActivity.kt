@@ -154,8 +154,6 @@ class AddCandidatActivity : AppCompatActivity() {
             datePickerDialog.show()
         }
     }
-
-    // Save the candidate data
     // Save the candidate data
     private fun saveCandidat() {
         lifecycleScope.launch {
