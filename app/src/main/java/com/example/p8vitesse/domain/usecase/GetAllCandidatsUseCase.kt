@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class GetAllCandidatsUseCase @Inject constructor(private val candidatRepository: CandidatRepository) {
 
-    suspend fun execute(): Flow<List<Candidat>> {
+     fun execute(): Flow<List<Candidat>> {
         return try {
             // Try to fetch all candidats from the repository
             candidatRepository.getAllCandidats()

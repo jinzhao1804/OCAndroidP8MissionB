@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetCandidatByIdUseCase @Inject constructor(private val candidatRepository: CandidatRepository) {
 
     // Execute the use case to get a Candidat by ID
-    suspend fun execute(candidatId: Int): Flow<Candidat>? {
+     fun execute(candidatId: Int): Flow<Candidat>? {
         return try {
             // Return the Candidat retrieved from the repository
             candidatRepository.getCandidatById(candidatId)

@@ -14,7 +14,7 @@ class GetFavorisCandidatsUseCase @Inject constructor(
     private val candidatRepository: CandidatRepository
 ) {
 
-    suspend fun execute() : kotlinx.coroutines.flow.Flow<List<Candidat>> {
+     fun execute() : kotlinx.coroutines.flow.Flow<List<Candidat>> {
         return flow {
             try {
                 // Emit the list of favoris candidates fetched from the repository
