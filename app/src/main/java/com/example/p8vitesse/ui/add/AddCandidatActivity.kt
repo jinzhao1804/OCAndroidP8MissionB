@@ -42,7 +42,7 @@ class AddCandidatActivity : AppCompatActivity() {
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         val editText = findViewById<EditText>(R.id.editTextDateOfBirth)
-        userProfilePicture = findViewById<ImageView>(R.id.userProfilePicture)
+        userProfilePicture = findViewById(R.id.userProfilePicture)
         val editTextEmail = findViewById<EditText>(R.id.emailTextName)
         val saveFloatingActionButton = findViewById<ExtendedFloatingActionButton>(R.id.fabSave)
 
