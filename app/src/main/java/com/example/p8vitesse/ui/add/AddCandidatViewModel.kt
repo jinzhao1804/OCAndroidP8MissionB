@@ -22,13 +22,16 @@ class AddCandidatViewModel @Inject constructor(
     private val _candidats = MutableStateFlow<List<Candidat>>(emptyList())
     val candidats: StateFlow<List<Candidat>> = _candidats.asStateFlow()
 
+    private val _candidat = MutableStateFlow<Candidat?>(null)
+    val candidat: StateFlow<Candidat?> = _candidat
+
     // Function to add a new candidat
     fun addCandidat(candidat: Candidat) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // Add the new candidat using the AddCandidatUseCase
                 addCandidatUseCase.execute(candidat)
-                //_candidats.value = _candidats.value + candidat
+                // Update the StateFlow with the newly added candidat
+                _candidat.value = candidat
 
                 Log.e("AppDatabase", "Candidat added successfully")
             } catch (e: Exception) {

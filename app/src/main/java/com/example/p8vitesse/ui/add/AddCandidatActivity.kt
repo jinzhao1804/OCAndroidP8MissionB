@@ -18,12 +18,13 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
-import com.example.p8vitesse.ui.home.all.AllViewModel
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.util.Calendar
 import java.util.Date
@@ -33,7 +34,7 @@ class AddCandidatActivity : AppCompatActivity() {
 
     private val REQUEST_CODE_PICK_IMAGE = 1001
     private lateinit var userProfilePicture: ImageView
-    private var profilePicture: Bitmap? = null  // Store the selected image
+    private var yourBitmap: Bitmap? = null // Make this nullable to handle the null case
     private val viewModel: AddCandidatViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,10 +106,11 @@ class AddCandidatActivity : AppCompatActivity() {
             val imageUri: Uri = data.data!!  // Get the URI of the selected image
 
             // Convert URI to Bitmap
-            profilePicture = getBitmapFromUri(imageUri)
+            yourBitmap = getBitmapFromUri(imageUri)
+
 
             // Set the image to the ImageView
-            userProfilePicture.setImageBitmap(profilePicture)
+            userProfilePicture.setImageBitmap(yourBitmap)
         }
     }
 
@@ -154,82 +156,85 @@ class AddCandidatActivity : AppCompatActivity() {
     }
 
     // Save the candidate data
-    fun saveCandidat() {
-        try {
-            Log.e("AppDatabase", "save function called")
+    // Save the candidate data
+    private fun saveCandidat() {
+        lifecycleScope.launch {
+            try {
+                Log.e("AppDatabase", "save function called")
 
-            // Get the input values from EditText fields
-            val editTextName = findViewById<EditText>(R.id.editTextName)
-            val editTextSurname = findViewById<EditText>(R.id.editTextSurname)
-            val editTextPhone = findViewById<EditText>(R.id.phoneTextView)
-            val editTextEmail = findViewById<EditText>(R.id.emailTextName)
-            val editTextSalary = findViewById<EditText>(R.id.salaryTextName)
-            val editTextNote = findViewById<EditText>(R.id.noteTextName)
+                // Get the input values from EditText fields
+                val editTextName = findViewById<EditText>(R.id.editTextName)
+                val editTextSurname = findViewById<EditText>(R.id.editTextSurname)
+                val editTextPhone = findViewById<EditText>(R.id.phoneTextView)
+                val editTextEmail = findViewById<EditText>(R.id.emailTextName)
+                val editTextSalary = findViewById<EditText>(R.id.salaryTextName)
+                val editTextNote = findViewById<EditText>(R.id.noteTextName)
 
-            val name = editTextName.text.toString().trim()
-            val surname = editTextSurname.text.toString().trim()
-            val phone = editTextPhone.text.toString().trim()
-            val email = editTextEmail.text.toString().trim()
-            val salary = editTextSalary.text.toString().trim().toDoubleOrNull() ?: 0.0
-            val note = editTextNote.text.toString().trim()
+                val name = editTextName.text.toString().trim()
+                val surname = editTextSurname.text.toString().trim()
+                val phone = editTextPhone.text.toString().trim()
+                val email = editTextEmail.text.toString().trim()
+                val salary = editTextSalary.text.toString().trim().toDoubleOrNull() ?: 0.0
+                val note = editTextNote.text.toString().trim()
 
-            // Validate input data
-            if (name.isEmpty()) {
-                Toast.makeText(this, "Please enter a valid name", Toast.LENGTH_SHORT).show()
-                return
+                // Validate input data
+                if (name.isEmpty()) {
+                    Toast.makeText(this@AddCandidatActivity, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                if (surname.isEmpty()) {
+                    Toast.makeText(this@AddCandidatActivity, "Please enter a valid surname", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                if (!isValidEmail(email)) {
+                    Toast.makeText(this@AddCandidatActivity, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                if (phone.isEmpty()) {
+                    Toast.makeText(this@AddCandidatActivity, "Please enter a phone number", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                if (salary <= 0.0) {
+                    Toast.makeText(this@AddCandidatActivity, "Please enter a valid salary", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                Log.e("AppDatabase", "Data collected: Name=$name, Surname=$surname, Phone=$phone, Email=$email, Salary=$salary, Note=$note")
+
+                // Create a new Candidat object with the provided values
+                val candidat = Candidat(
+                    name = name,
+                    surname = surname,
+                    phone = phone,
+                    email = email,
+                    birthdate = Date(),  // Use a DatePicker to get a date input
+                    desiredSalary = salary,
+                    note = note,
+                    isFav = false, // Assuming isFav is a default value
+                    profilePicture = yourBitmap  // Store the selected image
+                )
+
+                // Save the Candidat using the ViewModel
+                viewModel.addCandidat(candidat)
+
+                Log.e("AppDatabase", "Candidat saved successfully")
+                Toast.makeText(this@AddCandidatActivity, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
+
+                // Clear the fields after saving
+                clearFields()
+
+                // Set the result to notify the calling fragment (AllFragment)
+                setResult(RESULT_OK)
+                finish()  // Close the activity and go back to AllFragment
+
+            } catch (e: Exception) {
+                Log.e("AppDatabase", "Error saving candidat", e)
+                Toast.makeText(this@AddCandidatActivity, "An error occurred while saving the Candidat. Please try again.", Toast.LENGTH_LONG).show()
             }
-
-            if (surname.isEmpty()) {
-                Toast.makeText(this, "Please enter a valid surname", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            if (!isValidEmail(email)) {
-                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            if (phone.isEmpty()) {
-                Toast.makeText(this, "Please enter a phone number", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            if (salary <= 0.0) {
-                Toast.makeText(this, "Please enter a valid salary", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            Log.e("AppDatabase", "Data collected: Name=$name, Surname=$surname, Phone=$phone, Email=$email, Salary=$salary, Note=$note")
-
-            // Create a new Candidat object with the provided values
-            val candidat = Candidat(
-                name = name,
-                surname = surname,
-                phone = phone,
-                email = email,
-                birthdate = Date(),  // Use a DatePicker to get a date input
-                desiredSalary = salary,
-                note = note,
-                isFav = false, // Assuming isFav is a default value
-                profilePicture = profilePicture  // Store the selected image
-            )
-
-            // Save the Candidat using the ViewModel
-            viewModel.addCandidat(candidat)
-
-            Log.e("AppDatabase", "Candidat saved successfully")
-            Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
-
-            // Clear the fields after saving
-            clearFields()
-
-            // Set the result to notify the calling fragment (AllFragment)
-            setResult(RESULT_OK)
-            finish()  // Close the activity and go back to AllFragment
-
-        } catch (e: Exception) {
-            Log.e("AppDatabase", "Error saving candidat", e)
-            Toast.makeText(this, "An error occurred while saving the Candidat. Please try again.", Toast.LENGTH_LONG).show()
         }
     }
 
