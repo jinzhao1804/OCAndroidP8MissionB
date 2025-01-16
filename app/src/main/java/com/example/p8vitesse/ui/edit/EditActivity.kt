@@ -215,6 +215,22 @@ class EditActivity : AppCompatActivity() {
 
     }
 
+    fun resizeBitmap(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val ratioBitmap = width.toFloat() / height.toFloat()
+        val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
+
+        var finalWidth = maxWidth
+        var finalHeight = maxHeight
+        if (ratioMax > ratioBitmap) {
+            finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
+        } else {
+            finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
+        }
+        return Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
+    }
+
     fun saveCandidat() {
         try {
             Log.e("AppDatabase", "save function called")
@@ -240,9 +256,12 @@ class EditActivity : AppCompatActivity() {
             val birthdate: Date? = dateFormat.parse(birthdateString)
 
 
+            val resizedBitmap = profilePicture?.let { resizeBitmap(it, 1024, 1024) }
+
+
             // Fetch the existing Candidat to retain the existing profile picture if no new image is selected
             val existingCandidat = viewModel.candidat.value
-            val finalProfilePicture = profilePicture ?: existingCandidat?.profilePicture
+            val finalProfilePicture = resizedBitmap ?: existingCandidat?.profilePicture
 
 
             if (birthdateString.isEmpty()) {
@@ -281,56 +300,57 @@ class EditActivity : AppCompatActivity() {
             }
 
             Log.e("AppDatabase", "Data collected: image:$profilePicture, Birthdate=$birthdate, Name=$name, Surname=$surname, Phone=$phone, Email=$email, Salary=$salary, Note=$note")
-            try {
-                // Create the Candidat object with the provided values
-                val candidat = Candidat(
-                    id = candidatId,
-                    name = name,
-                    surname = surname,
-                    phone = phone,
-                    email = email,
-                    birthdate = birthdate!!,  // Use current date for birthdate, consider parsing if needed
-                    desiredSalary = salary,
-                    note = note,
-                    isFav = isFav,  // Default value for isFav
-                    profilePicture = finalProfilePicture  // The profile picture Bitmap (could be null)
-                )
+            lifecycleScope.launch {
+                try {
+                    // Create the Candidat object with the provided values
+                    val candidat = Candidat(
+                        id = candidatId,
+                        name = name,
+                        surname = surname,
+                        phone = phone,
+                        email = email,
+                        birthdate = birthdate!!,  // Use current date for birthdate, consider parsing if needed
+                        desiredSalary = salary,
+                        note = note,
+                        isFav = isFav,  // Default value for isFav
+                        profilePicture = finalProfilePicture  // The profile picture Bitmap (could be null)
+                    )
 
-                // Call the ViewModel to update the Candidat (you should handle any potential failure here)
-                viewModel.updateCandidat(candidat)
+                    // Call the ViewModel to update the Candidat (you should handle any potential failure here)
+                    viewModel.updateCandidat(candidat)
 
-                Log.e("AppDatabase", "candidat update id is: ${candidat.id}")
-                //Toast.makeText(this, "Candidat update is is: ${candidat.id}", Toast.LENGTH_SHORT).show()
+                    Log.e("AppDatabase", "candidat update id is: ${candidat.id}")
+                    //Toast.makeText(this, "Candidat update is is: ${candidat.id}", Toast.LENGTH_SHORT).show()
 
-                // Show a success message
-                //Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
+                    // Show a success message
+                    //Toast.makeText(this, "Candidat saved successfully", Toast.LENGTH_SHORT).show()
 
-                // Clear the fields after saving
-                clearFields()
+                    // Clear the fields after saving
+                    clearFields()
 
-                // Set the result and finish the activity (e.g., to go back to the previous screen)
-                setResult(RESULT_OK)
+                    // Set the result and finish the activity (e.g., to go back to the previous screen)
+                    setResult(RESULT_OK)
 
 
-                finish()
+                    finish()
 
-            } catch (e: IllegalArgumentException) {
-                // Handle case where any argument is invalid, for example:
-                Log.e("AppDatabase", "Error saving candidat: Invalid argument - ${e.message}")
-                Toast.makeText(this, "Please check the input fields and try again.", Toast.LENGTH_LONG).show()
 
-            } catch (e: Exception) {
-                // Handle any other unexpected errors (network, database, etc.)
-                Log.e("AppDatabase", "Error saving candidat: ${e.message}", e)
-                Toast.makeText(this, "An error occurred while saving the Candidat. Please try again.", Toast.LENGTH_LONG).show()
+                } catch (e: IllegalArgumentException) {
+                    // Handle case where any argument is invalid, for example:
+                    Log.e("AppDatabase", "Error saving candidat: Invalid argument - ${e.message}")
+
+                } catch (e: Exception) {
+                    // Handle any other unexpected errors (network, database, etc.)
+                    Log.e("AppDatabase", "Error saving candidat: ${e.message}", e)
+                }
             }
-
 
         } catch (e: Exception) {
             Log.e("AppDatabase", "Error saving candidat", e)
             Toast.makeText(this, "An error occurred while saving the Candidat. Please try again.", Toast.LENGTH_LONG).show()
         }
     }
+
 
     fun clearFields() {
         findViewById<EditText>(R.id.editTextName).text.clear()
