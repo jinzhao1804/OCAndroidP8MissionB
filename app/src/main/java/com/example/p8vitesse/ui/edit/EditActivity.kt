@@ -29,9 +29,11 @@ import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class EditActivity : AppCompatActivity() {
@@ -92,7 +94,17 @@ class EditActivity : AppCompatActivity() {
         // Call the function to add text watcher for email validation
         validateEmailWhileTyping(editTextEmail)
 
-        saveFloatingActionButton.setOnClickListener { saveCandidat() }
+        saveFloatingActionButton.setOnClickListener {
+            saveCandidat()
+            setResult(RESULT_OK) // Inform the previous activity that the save was successful
+            finish()
+        }
+    }
+
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed() // Trigger back navigation
+        return true
     }
 
     // Function to add a TextWatcher to EditText and validate email
@@ -148,27 +160,10 @@ class EditActivity : AppCompatActivity() {
         }
     }
 
-
-    override fun onBackPressed() {
-
-        super.onBackPressed()
-        // Navigate back to the MainActivity and clear the back stack
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
-        startActivity(intent)
-        finish()  // Close the current activity
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                //onBackPressed()
-                // Navigate back to the home activity and clear the back stack
-                val intent = Intent(this, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-                startActivity(intent)
+
                 finish()  // Close the current activity
                 true
             }
@@ -211,6 +206,11 @@ class EditActivity : AppCompatActivity() {
         editTextNote.setText(candidat.note)
         editTextDateOfBirth.setText(candidat.birthdate.toString())
 
+        // Format the birthdate to "dd/MM/yyyy" before setting it in the EditText
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val formattedDate = dateFormat.format(candidat.birthdate)
+        editTextDateOfBirth.setText(formattedDate)
+
         isFav = candidat.isFav
 
     }
@@ -233,20 +233,19 @@ class EditActivity : AppCompatActivity() {
             val email = editTextEmail.text.toString().trim()
             val salary = editTextSalary.text.toString().trim().toDoubleOrNull() ?: 0.0
             val note = editTextNote.text.toString().trim()
-            val birthdate = editBirthdate.text.toString().trim()
+            //val birthdate = editBirthdate.text.toString().trim()
             val profilePicture = yourBitmap
+            val birthdateString = editBirthdate.text.toString().trim()
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val birthdate: Date? = dateFormat.parse(birthdateString)
+
 
             // Fetch the existing Candidat to retain the existing profile picture if no new image is selected
             val existingCandidat = viewModel.candidat.value
             val finalProfilePicture = profilePicture ?: existingCandidat?.profilePicture
 
-            /*
-            if (profilePicture == null) {
-                Toast.makeText(this, "Please enter a valid picture", Toast.LENGTH_SHORT).show()
-                return
-            }*/
 
-            if (birthdate.isEmpty()) {
+            if (birthdateString.isEmpty()) {
                 Toast.makeText(this, "Please enter a valid birthday", Toast.LENGTH_SHORT).show()
                 return
             }
@@ -290,7 +289,7 @@ class EditActivity : AppCompatActivity() {
                     surname = surname,
                     phone = phone,
                     email = email,
-                    birthdate = Date(),  // Use current date for birthdate, consider parsing if needed
+                    birthdate = birthdate!!,  // Use current date for birthdate, consider parsing if needed
                     desiredSalary = salary,
                     note = note,
                     isFav = isFav,  // Default value for isFav
@@ -312,12 +311,7 @@ class EditActivity : AppCompatActivity() {
                 // Set the result and finish the activity (e.g., to go back to the previous screen)
                 setResult(RESULT_OK)
 
-// Navigate to DetailActivity and clear the back stack
-                val intent = Intent(this, MainActivity::class.java).apply {
-                    putExtra("CANDIDAT_ID", candidat.id) // Pass the candidate ID to DetailActivity
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-                startActivity(intent)
+
                 finish()
 
             } catch (e: IllegalArgumentException) {

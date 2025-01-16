@@ -2,8 +2,6 @@ package com.example.p8vitesse.ui.detail
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -18,22 +16,19 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
-import com.example.p8vitesse.R
 import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.domain.usecase.GetFavorisCandidatsUseCase
 import com.example.p8vitesse.domain.usecase.SetFavorisCandidatUsecase
 import com.example.p8vitesse.ui.edit.EditActivity
 import com.example.p8vitesse.ui.home.favoris.FavorisListAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
-import android.util.Base64
 import androidx.fragment.app.FragmentManager
-import com.example.p8vitesse.MainActivity
+import com.example.p8vitesse.R
 
 
 @AndroidEntryPoint
@@ -225,25 +220,22 @@ class CandidatDetailActivity : AppCompatActivity() {
     override fun onBackPressed() {
 
         super.onBackPressed()
-        // Navigate back to the MainActivity and clear the back stack
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
-        startActivity(intent)
+
         finish()  // Close the current activity
+    }
+
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed() // Trigger back navigation
+        finish()
+        return true
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                //onBackPressed()
-                //finish()
-                // Navigate back to the MainActivity and clear the back stack
-                val intent = Intent(this, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-                startActivity(intent)
+
                 finish()
                 true
             }
@@ -279,6 +271,7 @@ class CandidatDetailActivity : AppCompatActivity() {
                         Log.e("AppDatabase", "candidat to edit ${candidat.id}")
                     // Start the EditActivity
                     startActivity(intent)
+                    finish()
                 }
 
                 true

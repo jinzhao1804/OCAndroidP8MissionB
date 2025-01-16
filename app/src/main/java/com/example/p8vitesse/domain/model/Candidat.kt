@@ -3,6 +3,7 @@ package com.example.p8vitesse.domain.model
 import android.graphics.Bitmap
 import com.example.p8vitesse.data.converter.Converter
 import com.example.p8vitesse.data.entity.CandidatDto
+import java.util.Date
 
 data class Candidat(
     val id: Long? = null,
@@ -10,7 +11,7 @@ data class Candidat(
     var surname: String,
     var phone: String,
     var email: String,
-    var birthdate: java.util.Date,
+    var birthdate: Date,
     var desiredSalary: Double,
     var note: String,
     var isFav: Boolean,
