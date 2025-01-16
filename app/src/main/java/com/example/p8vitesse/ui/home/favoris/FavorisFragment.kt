@@ -54,7 +54,7 @@ class FavorisFragment : Fragment() {
                 // Update the RecyclerView adapter with the new list of candidats
                     // Only update the adapter if the list has changed
                     adapter.updateCandidats(candidats)
-                    adapter.notifyDataSetChanged() // Trigger the adapter refresh
+                   // adapter.notifyDataSetChanged() // Trigger the adapter refresh
 
 
 

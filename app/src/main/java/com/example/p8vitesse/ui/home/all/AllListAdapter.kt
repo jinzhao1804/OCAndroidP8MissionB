@@ -1,7 +1,5 @@
 package com.example.p8vitesse.ui.home.all
 
-
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,8 +20,6 @@ class AllListAdapter(private var candidats: List<Candidat>, private val onItemCl
 
         candidats = newCandidates
         diffResult.dispatchUpdatesTo(this)
-        notifyDataSetChanged()
-
     }
 
 

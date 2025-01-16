@@ -79,11 +79,8 @@ class AllFragment : Fragment() {
 
     // Helper function to observe candidates and update UI
     private fun observeCandidates() {
-        showLoading(true) // Show loading indicator initially
-
         lifecycleScope.launch {
             viewModel.candidats.collect { candidats ->
-                showLoading(false) // Hide loading indicator
                 updateUI(candidats)
                 adapter.updateCandidats(candidats) // Update adapter with the latest list
             }

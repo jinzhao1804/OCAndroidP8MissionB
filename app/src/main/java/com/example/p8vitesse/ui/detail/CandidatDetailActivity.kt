@@ -32,6 +32,7 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 import android.util.Base64
+import androidx.fragment.app.FragmentManager
 import com.example.p8vitesse.MainActivity
 
 
@@ -251,13 +252,11 @@ class CandidatDetailActivity : AppCompatActivity() {
                 candidat?.let {
                     // Toggle the favorite status using the viewModel
                     candidatViewModel.toggleFavorite(it)
-
-                    // Refresh the favoris list after updating the favorite status
-                    //candidatViewModel.fetchFavCandidats()
-
                     // Update the favorite icon in the menu
                     updateFavoriteIcon(it.isFav)
                 }
+                // Clear the back stack before navigating
+                supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 true
             }
             R.id.action_delete -> {
