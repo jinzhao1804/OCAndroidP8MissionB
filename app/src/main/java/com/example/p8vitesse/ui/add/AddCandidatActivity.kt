@@ -35,6 +35,7 @@ class AddCandidatActivity : AppCompatActivity() {
     private val REQUEST_CODE_PICK_IMAGE = 1001
     private lateinit var userProfilePicture: ImageView
     private var yourBitmap: Bitmap? = null // Make this nullable to handle the null case
+    private var resizedBitmap: Bitmap? = null
     private val viewModel: AddCandidatViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,9 +109,10 @@ class AddCandidatActivity : AppCompatActivity() {
             // Convert URI to Bitmap
             yourBitmap = getBitmapFromUri(imageUri)
 
+            resizedBitmap = yourBitmap?.let { resizeBitmap(it, 1024, 1024) }
 
             // Set the image to the ImageView
-            userProfilePicture.setImageBitmap(yourBitmap)
+            userProfilePicture.setImageBitmap(resizedBitmap)
         }
     }
 
@@ -155,6 +157,23 @@ class AddCandidatActivity : AppCompatActivity() {
             datePickerDialog.show()
         }
     }
+
+    fun resizeBitmap(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val ratioBitmap = width.toFloat() / height.toFloat()
+        val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
+
+        var finalWidth = maxWidth
+        var finalHeight = maxHeight
+        if (ratioMax > ratioBitmap) {
+            finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
+        } else {
+            finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
+        }
+        return Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
+    }
+
     // Save the candidate data
     private fun saveCandidat() {
         lifecycleScope.launch {
@@ -175,6 +194,7 @@ class AddCandidatActivity : AppCompatActivity() {
                 val email = editTextEmail.text.toString().trim()
                 val salary = editTextSalary.text.toString().trim().toDoubleOrNull() ?: 0.0
                 val note = editTextNote.text.toString().trim()
+
 
                 // Validate input data
                 if (name.isEmpty()) {
@@ -218,7 +238,7 @@ class AddCandidatActivity : AppCompatActivity() {
                     desiredSalary = salary,
                     note = note,
                     isFav = false, // Assuming isFav is a default value
-                    profilePicture = yourBitmap  // Store the selected image
+                    profilePicture = resizedBitmap  // Store the selected image
                 )
 
                 // Save the Candidat using the ViewModel
