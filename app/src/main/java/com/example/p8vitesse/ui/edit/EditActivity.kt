@@ -313,7 +313,7 @@ class EditActivity : AppCompatActivity() {
                 setResult(RESULT_OK)
 
 // Navigate to DetailActivity and clear the back stack
-                val intent = Intent(this, CandidatDetailActivity::class.java).apply {
+                val intent = Intent(this, MainActivity::class.java).apply {
                     putExtra("CANDIDAT_ID", candidat.id) // Pass the candidate ID to DetailActivity
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }

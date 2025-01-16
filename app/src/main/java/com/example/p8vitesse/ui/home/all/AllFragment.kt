@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.p8vitesse.R
 import com.example.p8vitesse.databinding.FragmentAllBinding
+import com.example.p8vitesse.domain.model.Candidat
 import com.example.p8vitesse.ui.add.AddCandidatActivity
 import com.example.p8vitesse.ui.add.AddCandidatViewModel
 import com.example.p8vitesse.ui.detail.CandidatDetailActivity
@@ -43,67 +44,76 @@ class AllFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-        // Initialize the adapter with a click listener
         // Initialize the adapter with a click listener
         adapter = AllListAdapter(emptyList()) { candidat ->
-            // Handle the item click and pass the Candidat ID to the activity
-            val intent = Intent(requireContext(), CandidatDetailActivity::class.java)
-            intent.putExtra("CANDIDAT_ID", candidat.id.toString())  // Pass the Candidat's ID
-            startActivity(intent)  // Start the detail activity
-
-           Log.e("AppDatabase", "Candidat id put: ${candidat.id}")
-
-
+            candidat.id?.let { navigateToCandidatDetail(it) }
         }
 
+        // Set up RecyclerView
+        setupRecyclerView()
 
+        // Show loading indicator and observe candidates
+        observeCandidates()
 
-
-        // Set the RecyclerView's layout manager and adapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = adapter
-
-        // Show the loading indicator before fetching data
-        showLoading(true)
-
-
-        // Observe the candidates list from the ViewModel
-        lifecycleScope.launch {
-            viewModel.candidats.collect { candidats ->
-                showLoading(false)
-                if (candidats.isEmpty()) {
-                    showLoading(true)
-                    binding.noCandidateText.visibility = View.VISIBLE  // Show the "No candidate" message
-                    binding.recyclerView.visibility = View.GONE  // Hide the RecyclerView
-                } else {
-                    binding.noCandidateText.visibility = View.GONE  // Hide the "No candidate" message
-                    binding.recyclerView.visibility = View.VISIBLE  // Show the RecyclerView
-                }
-                adapter.updateCandidats(candidats)  // Update the adapter with the latest list
-            }
-        }
-
-        // Trigger fetching of candidates
+        // Fetch candidates
         viewModel.fetchCandidats()
 
-        // Set up FloatingActionButton to open AddCandidatActivity
-        binding.squareFab.setOnClickListener {
-            val intent = Intent(requireContext(), AddCandidatActivity::class.java)
-            addCandidatLauncher.launch(intent)  // Launch the AddCandidatActivity
+        // Set up FloatingActionButton
+        setupFloatingActionButton()
+    }
+
+    // Helper function to navigate to CandidatDetailActivity
+    private fun navigateToCandidatDetail(candidatId: Long) {
+        val intent = Intent(requireContext(), CandidatDetailActivity::class.java).apply {
+            putExtra("CANDIDAT_ID", candidatId.toString())
+        }
+        startActivity(intent)
+        Log.e("AppDatabase", "Candidat id put: $candidatId")
+    }
+
+    // Helper function to set up RecyclerView
+    private fun setupRecyclerView() {
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = adapter
+    }
+
+    // Helper function to observe candidates and update UI
+    private fun observeCandidates() {
+        showLoading(true) // Show loading indicator initially
+
+        lifecycleScope.launch {
+            viewModel.candidats.collect { candidats ->
+                showLoading(false) // Hide loading indicator
+                updateUI(candidats)
+                adapter.updateCandidats(candidats) // Update adapter with the latest list
+            }
         }
     }
 
-    private fun showLoading(isLoading: Boolean) {
-        if (isLoading) {
-            binding.progressBar.visibility = View.VISIBLE  // Show the loading screen
-            binding.recyclerView.visibility = View.GONE  // Hide the RecyclerView
-            Log.e("AppDatabase","is showLoading called: $isLoading")
+    // Helper function to update UI based on candidates list
+    private fun updateUI(candidats: List<Candidat>) {
+        if (candidats.isEmpty()) {
+            showLoading(true)
+            binding.noCandidateText.visibility = View.VISIBLE // Show "No candidate" message
+            binding.recyclerView.visibility = View.GONE // Hide RecyclerView
         } else {
-            binding.progressBar.visibility = View.GONE  // Hide the loading screen
-            binding.recyclerView.visibility = View.VISIBLE  // Show the RecyclerView
+            showLoading(false)
+            binding.noCandidateText.visibility = View.GONE // Hide "No candidate" message
+            binding.recyclerView.visibility = View.VISIBLE // Show RecyclerView
         }
+    }
+
+    // Helper function to set up FloatingActionButton
+    private fun setupFloatingActionButton() {
+        binding.squareFab.setOnClickListener {
+            val intent = Intent(requireContext(), AddCandidatActivity::class.java)
+            addCandidatLauncher.launch(intent) // Launch AddCandidatActivity
+        }
+    }
+
+    // Helper function to show or hide loading indicator
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
 

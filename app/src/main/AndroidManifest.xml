@@ -18,9 +18,11 @@
         tools:targetApi="31">
         <activity
             android:name=".ui.edit.EditActivity"
+            android:launchMode="singleTop"
             android:exported="false" />
         <activity
             android:name=".ui.detail.CandidatDetailActivity"
+            android:launchMode="singleTop"
             android:exported="false" />
         <activity
             android:name=".ui.add.AddCandidatActivity"
